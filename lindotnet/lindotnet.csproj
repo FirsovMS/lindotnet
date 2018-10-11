@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{907A15FA-DB66-44D9-842E-A7BB288B55F1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>lindotnet</RootNamespace>
+    <AssemblyName>lindotnet</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\Component\Implementation\Account.cs" />
+    <Compile Include="Classes\Component\Implementation\Call.cs" />
+    <Compile Include="Classes\Component\Implementation\Media.cs" />
+    <Compile Include="Classes\Component\Implementation\NatPolicy.cs" />
+    <Compile Include="Classes\Component\Implementation\SoftphoneBase.cs" />
+    <Compile Include="Classes\Component\Interfaces\IMedia.cs" />
+    <Compile Include="Classes\Component\Interfaces\ISoftphone.cs" />
+    <Compile Include="Classes\Component\Interfaces\ISoftphoneBase.cs" />
+    <Compile Include="Classes\Constants.cs" />
+    <Compile Include="Classes\Enums.cs" />
+    <Compile Include="Classes\Helpers\ComponentExtensions.cs" />
+    <Compile Include="Classes\Helpers\MarshalingExtensions.cs" />
+    <Compile Include="Classes\LinphoneException.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\CallParamsBuilder.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\DllLoader.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Linphone.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneCall.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneConnectionParams.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneDelegates.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneEvents.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneStructs.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneWrapper.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Modules\CallModule.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Modules\ChatModule.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Modules\CoreModule.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Modules\GenericModules.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Modules\MediaModule.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Modules\NetworkModule.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Modules\ProxieModule.cs" />
+    <Compile Include="Classes\Wrapper\Interfaces\ICallParamsBuilder.cs" />
+    <Compile Include="Classes\Wrapper\Interfaces\ILinphoneWrapper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
