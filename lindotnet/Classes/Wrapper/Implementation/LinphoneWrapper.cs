@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using lindotnet.Classes.Component.Implementation;
 using lindotnet.Classes.Helpers;
 using lindotnet.Classes.Wrapper.Implementation.Modules;
@@ -50,7 +53,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		public LinphoneStructs.LCSipTransports TransportConfig { get; private set; }
 
-		public List<LinphoneCall> Calls { get; private set; }
+		public ConcurrentDictionary<IntPtr, LinphoneCall> Calls { get; private set; }
 
 		public bool LogsEnabled { get; set; }
 
@@ -117,13 +120,14 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		#endregion
 
 #if (DEBUG)
+#warning Loader wouldn't work!
 		static LinphoneWrapper()
 		{
 			IntPtr dllPtr = DllLoader.DoLoadLibrary(Constants.LIBNAME);
 
 			foreach (MethodInfo info in typeof(Linphone).GetMethods(BindingFlags.Public | BindingFlags.Static))
 			{
-				if (DllLoader.DoGetProcAddress(dllPtr, info.Name) == IntPtr.Zero)
+				if (DllLoader.DoGetProcAddress(dllPtr, info.Name).IsZero())
 				{
 					throw new EntryPointNotFoundException($"Invalid linphone library version: {info.Name} is not found.");
 				}
@@ -135,7 +139,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		public LinphoneWrapper()
 		{
-			Calls = new List<LinphoneCall>();
+			Calls = new ConcurrentDictionary<IntPtr, LinphoneCall>();
 
 			CoreModule.linphone_core_set_log_level(OrtpLogLevel.END);
 		}
@@ -164,23 +168,23 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			TransportConfigPtr = TransportConfig.ToIntPtr();
 			NetworkModule.linphone_core_set_sip_transports(LinphoneCore, TransportConfigPtr);
 
-			GenericModules.linphone_core_set_user_agent(LinphoneCore, connectionParams.agent, connectionParams.version);
+			GenericModules.linphone_core_set_user_agent(LinphoneCore, connectionParams.Agent, connectionParams.Version);
 
-			if (string.IsNullOrEmpty(connectionParams.accountAlias))
+			if (string.IsNullOrEmpty(connectionParams.AccountAlias))
 			{
-				Identity = $"sip:{connectionParams.username}@{connectionParams.server}";
+				Identity = $"sip:{connectionParams.Username}@{connectionParams.Host}";
 			}
 			else
 			{
-				Identity = $"\"{connectionParams.accountAlias}\" sip:{connectionParams.username}@{connectionParams.server}";
+				Identity = $"\"{connectionParams.AccountAlias}\" sip:{connectionParams.Username}@{connectionParams.Host}";
 			}
 
-			ServerHost = $"sip:{connectionParams.server}:{connectionParams.port}";
+			ServerHost = $"sip:{connectionParams.Host}:{connectionParams.Port}";
 
-			AuthInfo = GenericModules.linphone_auth_info_new(connectionParams.username, null, connectionParams.password, null, null, null);
+			AuthInfo = GenericModules.linphone_auth_info_new(connectionParams.Username, null, connectionParams.Password, null, null, null);
 			GenericModules.linphone_core_add_auth_info(LinphoneCore, AuthInfo);
 
-			NatPolicy = CreateNatPolicy(connectionParams.natPolicy);
+			NatPolicy = CreateNatPolicy(connectionParams.NatPolicy);
 
 			ProxyCfg = CreateProxyCfg();
 
@@ -189,37 +193,186 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		public void DestroyPhone()
 		{
-			throw new NotImplementedException();
+			if (LinphoneCore != null)
+			{
+				RegistrationStateChangedEvent?.Invoke(LinphoneRegistrationState.LinphoneRegistrationProgress);
+
+				CallModule.linphone_core_terminate_all_calls(LinphoneCore);
+
+				var proxySetDownTask = ExecuteWithDelay(() =>
+				{
+					if (ProxieModule.linphone_proxy_config_is_registered(ProxyCfg))
+					{
+						ProxieModule.linphone_proxy_config_edit(ProxyCfg);
+						ProxieModule.linphone_proxy_config_enable_register(ProxyCfg, false);
+						ProxieModule.linphone_proxy_config_done(ProxyCfg);
+					}
+				}, Constants.LC_CORE_PROXY_DISABLE_TIMEOUT);
+
+				proxySetDownTask.Wait();
+
+				IsRunning = ProxieModule.linphone_proxy_config_is_registered(ProxyCfg);
+			}
 		}
 
-		public List<string> GetCaptureDevices()
+		public IEnumerable<string> GetCaptureDevices()
 		{
-			throw new NotImplementedException();
+			return GetDevices()
+				.Where(device => MediaModule.linphone_core_sound_device_can_capture(LinphoneCore, device));
 		}
 
-		public List<string> GetPlaybackDevices()
+		public IEnumerable<string> GetPlaybackDevices()
 		{
-			throw new NotImplementedException();
+			return GetDevices()
+				.Where(device => MediaModule.linphone_core_sound_device_can_playback(LinphoneCore, device));
 		}
 
 		public void LinphoneLogEvent(string domain, OrtpLogLevel lev, string fmt, IntPtr args)
 		{
-			throw new NotImplementedException();
+			logEventHandler?.Invoke(DllLoader.ProcessVAlist(fmt, args));
 		}
 
 		public void MakeCall(string uri)
 		{
-			throw new NotImplementedException();
+			MakeCallAndRecord(uri, null, false);
 		}
 
 		public void MakeCallAndRecord(string uri, string filename, bool startRecordInstantly = true)
 		{
-			throw new NotImplementedException();
+			if (LinphoneCore.IsNonZero())
+			{
+				IntPtr callParams = CallParamsBuilder
+					.BuildAudioParams()
+					.BuildVideoParams()
+					.BuildMediaParams()
+					.Build();
+
+				if (!string.IsNullOrWhiteSpace(filename))
+				{
+					CallModule.linphone_call_params_set_record_file(callParams, filename);
+				}
+
+				IntPtr call = CallModule.linphone_core_invite_with_params(LinphoneCore, uri, callParams);
+
+				if (call.IsZero())
+				{
+					ErrorEvent?.Invoke(null, "Can't call!");
+					return;
+				}
+
+				CallModule.linphone_call_ref(call);
+				if (startRecordInstantly)
+				{
+					GenericModules.linphone_call_start_recording(call);
+				}
+			}
 		}
 
-		public void OnCallStateChanged(IntPtr lc, IntPtr call, LinphoneCallState cstate, string message)
+		public void OnCallStateChanged(IntPtr lc, IntPtr call, LinphoneCallState callState, string message)
 		{
-			
+			if (LinphoneCore.IsNonZero() && IsRunning)
+			{
+				var newCallState = CallState.None;
+				var newCallType = CallType.None;
+				string from, to, recordFile;
+
+				from = to = recordFile = null;
+				IntPtr callParams = CallModule.linphone_call_get_params(call);
+
+				bool recordEnable = MarshalingExtensions.TryConvert(CallModule.linphone_call_params_get_record_file(callParams), out recordFile);
+
+				// detecting direction, state and source-destination data by state
+				switch (callState)
+				{
+					case LinphoneCallState.LinphoneCallIncomingReceived:
+					case LinphoneCallState.LinphoneCallIncomingEarlyMedia:
+						newCallState = CallState.Loading;
+						newCallType = CallType.Incoming;
+						MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out from);
+						to = Identity;
+						break;
+
+					case LinphoneCallState.LinphoneCallConnected:
+					case LinphoneCallState.LinphoneCallResuming:
+					case LinphoneCallState.LinphoneCallStreamsRunning:
+					case LinphoneCallState.LinphoneCallPausedByRemote:
+					case LinphoneCallState.LinphoneCallUpdatedByRemote:
+						newCallState = CallState.Active;
+						break;
+
+					case LinphoneCallState.LinphoneCallPaused:
+					case LinphoneCallState.LinphoneCallPausing:
+						newCallState = CallState.Hold;
+						break;
+
+					case LinphoneCallState.LinphoneCallOutgoingInit:
+					case LinphoneCallState.LinphoneCallOutgoingProgress:
+					case LinphoneCallState.LinphoneCallOutgoingRinging:
+					case LinphoneCallState.LinphoneCallOutgoingEarlyMedia:
+						newCallState = CallState.Loading;
+						newCallType = CallType.Outcoming;
+						from = Identity;
+						MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out to);
+						break;
+
+					case LinphoneCallState.LinphoneCallError:
+						newCallState = CallState.Error;
+						break;
+
+					case LinphoneCallState.LinphoneCallReleased:
+					case LinphoneCallState.LinphoneCallEnd:
+						newCallState = CallState.Completed;
+						if (recordEnable)
+						{
+							GenericModules.linphone_call_stop_recording(call);
+						}
+						break;
+					default:
+						throw new NotImplementedException("Sorry, that feature not implemented!");
+						break;
+				}
+
+				// Update references
+				IntPtr callref = CallModule.linphone_call_ref(call);
+				if (callref.IsNonZero())
+				{
+					LinphoneCall existCall = null;
+					if (Calls.TryGetValue(callref, out existCall))
+					{
+						if (existCall.State != newCallState)
+						{
+							existCall.State = newCallState;
+							CallStateChangedEvent?.Invoke(existCall);
+						}
+
+						if (callState == LinphoneCallState.LinphoneCallReleased)
+						{
+							CallModule.linphone_call_unref(existCall.LinphoneCallPtr);
+							if (Calls.TryRemove(callref, out existCall))
+							{
+								throw new LinphoneException("Call didnt remove from queue!");
+							}
+							return;
+						}
+					}
+					else
+					{
+						existCall = new LinphoneCall()
+						{
+							State = newCallState,
+							Type = newCallType,
+							From = from,
+							To = to,
+							RecordFile = recordFile,
+							LinphoneCallPtr = callref
+						};
+
+						Calls.AddOrUpdate(callref, existCall, (key, oldValue) => oldValue = existCall);
+
+						CallStateChangedEvent?.Invoke(existCall);
+					}
+				}
+			}
 		}
 
 		public void OnMessageReceived(IntPtr lc, IntPtr room, IntPtr message)
@@ -228,11 +381,12 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			if (peer_address.IsNonZero())
 			{
 				var addressStringPtr = CallModule.linphone_address_as_string(peer_address);
-				var chatmessage = ChatModule.linphone_chat_message_get_text(message);
+				var chatMessagePtr = ChatModule.linphone_chat_message_get_text(message);
 
-				if (addressStringPtr.IsNonZero() && chatmessage.IsNonZero())
+				string addressString, chatMessage;
+				if (MarshalingExtensions.TryConvert(addressStringPtr, out addressString) && MarshalingExtensions.TryConvert(chatMessagePtr, out chatMessage))
 				{
-					MessageReceivedEvent?.Invoke(Marshal.PtrToStringAnsi(addressStringPtr), Marshal.PtrToStringAnsi(chatmessage));
+					MessageReceivedEvent?.Invoke(addressString, chatMessage);
 				}
 			}
 		}
@@ -534,6 +688,39 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			ProxieModule.linphone_core_set_default_proxy_config(LinphoneCore, result);
 
 			return result;
+		}
+
+		private static async Task ExecuteWithDelay(Action action, int timeoutInMilliseconds)
+		{
+			await Task.Delay(timeoutInMilliseconds);
+			action();
+		}
+
+		private IEnumerable<string> GetDevices()
+		{
+			if (LinphoneCore.IsZero())
+			{
+				throw new LinphoneException("LinphoneCore not started!");
+			}
+
+			MediaModule.linphone_core_reload_sound_devices(LinphoneCore);
+			MediaModule.linphone_core_reload_video_devices(LinphoneCore);
+
+			IntPtr ptrSoundDevs = MediaModule.linphone_core_get_sound_devices(LinphoneCore);
+			IntPtr ptrVideoDevs = MediaModule.linphone_core_get_video_devices(LinphoneCore);
+
+			if (ptrSoundDevs.IsZero())
+			{
+				throw new LinphoneException("Can't get list of sound devices!");
+			}
+			if (ptrVideoDevs.IsZero())
+			{
+				throw new LinphoneException("Can't get list of video devices!");
+			}
+
+			return ptrSoundDevs.ToStringCollection()
+				.Concat(ptrVideoDevs.ToStringCollection())
+				.Distinct();
 		}
 
 		#endregion

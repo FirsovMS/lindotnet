@@ -2,14 +2,14 @@
 {
 	public class Call
 	{
-		public CallType Type { get; protected set; }
+		public CallType Type { get; internal set; } = CallType.None;
 
-		public CallState State { get; protected set; }
+		public CallState State { get; internal set; } = CallState.None;
 
-		public string CallTo { get; protected set; }
+		public string To { get; internal set; } = string.Empty;
 
-		public string CallFrom { get; protected set; }
+		public string From { get; internal set; } = string.Empty;
 
-		public string RecordFile { get; protected set; }
+		public string RecordFile { get; internal set; } = string.Empty;
 	}
 }

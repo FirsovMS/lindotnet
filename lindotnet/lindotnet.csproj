@@ -45,6 +45,7 @@
     <Compile Include="Classes\Component\Implementation\Call.cs" />
     <Compile Include="Classes\Component\Implementation\Media.cs" />
     <Compile Include="Classes\Component\Implementation\NatPolicy.cs" />
+    <Compile Include="Classes\Component\Implementation\Softphone.cs" />
     <Compile Include="Classes\Component\Implementation\SoftphoneBase.cs" />
     <Compile Include="Classes\Component\Interfaces\IMedia.cs" />
     <Compile Include="Classes\Component\Interfaces\ISoftphone.cs" />

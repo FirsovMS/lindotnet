@@ -131,10 +131,44 @@ namespace lindotnet.Classes.Component.Implementation
 
 		#endregion
 
-		#region Methods
+		#region Interface Implementation
 
+		public void Connect() => Connect(NatPolicy.GetDefaultNatPolicy());
 
+		public void Connect(NatPolicy natPolicy)
+		{
+			if (ConnectState == ConnectState.Disconnected)
+			{
+				ConnectState = ConnectState.Progress;
+
+				var connParams = CreateConnectionParams(Account, natPolicy);
+				LinphoneWrapper.CreatePhone(connParams);
+			}
+		}
+
+		public void Disconnect()
+		{
+			if (ConnectState == ConnectState.Connected)
+			{
+				LinphoneWrapper.DestroyPhone();
+			}
+		}
 
 		#endregion
+
+		private LinphoneConnectionParams CreateConnectionParams(Account account, NatPolicy natPolicy)
+		{
+			return new LinphoneConnectionParams()
+			{
+				Username = Account.Username,
+				Password = Account.Password,
+				AccountAlias = Account.AccountName,
+				Host = Account.Host,
+				Port = Account.Port,
+				Agent = Useragent,
+				Version = Version,
+				NatPolicy = natPolicy
+			};
+		}
 	}
 }

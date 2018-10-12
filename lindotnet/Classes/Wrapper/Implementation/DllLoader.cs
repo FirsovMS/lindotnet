@@ -3,7 +3,11 @@ using System.Runtime.InteropServices;
 
 namespace lindotnet.Classes.Wrapper.Implementation
 {
-    internal static class DllLoader
+	/// <summary>
+	/// Cross-platform native loading utils.
+	/// By http://dimitry-i.blogspot.ru/2013/01/mononet-how-to-dynamically-load-native.html
+	/// </summary>
+	internal static class DllLoader
     {
 #if (WINDOWS)
         [DllImport("kernel32.dll")]

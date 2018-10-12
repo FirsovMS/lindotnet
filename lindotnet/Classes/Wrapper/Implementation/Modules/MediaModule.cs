@@ -27,6 +27,9 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 		public static extern void linphone_core_reload_sound_devices(IntPtr lc);
 
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void linphone_core_reload_video_devices(IntPtr lc);
+
+		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern bool linphone_core_sound_device_can_capture(IntPtr lc, string device);
 
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
@@ -60,7 +63,26 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 		public static extern IntPtr linphone_core_get_sound_devices(IntPtr lc);
 
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-		public static extern void linphone_call_enable_echo_cancellation(IntPtr call, bool val);
+		public static extern IntPtr linphone_core_get_video_devices(IntPtr lc);
+
+		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void linphone_core_enable_video_capture(IntPtr lc, bool enable);
+
+		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+		[Obsolete]
+		public static extern void linphone_core_enable_video_capture(IntPtr lc, bool vcap_enabled, bool display_enabled);
+
+		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void linphone_call_enable_echo_cancellation(IntPtr call, bool enable);
+
+		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void linphone_core_enable_video_display(IntPtr lc, bool enable);
+
+		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void linphone_core_enable_video_multicast(IntPtr lc, bool yesno);
+
+		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+		public static extern void linphone_core_enable_video_preview(IntPtr lc, bool val);
 
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void linphone_call_set_speaker_volume_gain(IntPtr call, float volume);

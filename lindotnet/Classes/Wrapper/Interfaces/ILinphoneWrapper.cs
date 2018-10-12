@@ -54,8 +54,8 @@ namespace lindotnet.Classes.Wrapper.Interfaces
 
 		void OnMessageReceived(IntPtr lc, IntPtr room, IntPtr message);
 
-		List<string> GetCaptureDevices();
+		IEnumerable<string> GetCaptureDevices();
 
-		List<string> GetPlaybackDevices();
+		IEnumerable<string> GetPlaybackDevices();
 	}
 }

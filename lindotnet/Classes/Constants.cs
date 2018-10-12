@@ -28,5 +28,7 @@
         internal static readonly int LC_SIP_TRANSPORT_DONTBIND = -2;
 
 		internal static readonly int LC_SLEEP_TIMEOUT = 100;
-    }
+
+		internal static readonly int LC_CORE_PROXY_DISABLE_TIMEOUT = 2000;
+	}
 }

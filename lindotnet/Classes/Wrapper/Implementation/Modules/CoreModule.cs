@@ -9,7 +9,7 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 	internal static class CoreModule
 	{
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-		[System.Obsolete]
+		[Obsolete]
 		public static extern IntPtr linphone_core_new(IntPtr vtable, string config_path, string factory_config_path, IntPtr userdata);
 
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
