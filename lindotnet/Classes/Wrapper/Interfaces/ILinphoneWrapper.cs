@@ -53,9 +53,5 @@ namespace lindotnet.Classes.Wrapper.Interfaces
 		void LinphoneLogEvent(string domain, OrtpLogLevel lev, string fmt, IntPtr args);
 
 		void OnMessageReceived(IntPtr lc, IntPtr room, IntPtr message);
-
-		IEnumerable<string> GetCaptureDevices();
-
-		IEnumerable<string> GetPlaybackDevices();
 	}
 }

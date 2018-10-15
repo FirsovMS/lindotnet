@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Classes\Component\Implementation\Account.cs" />
     <Compile Include="Classes\Component\Implementation\Call.cs" />
+    <Compile Include="Classes\Component\Implementation\Device.cs" />
     <Compile Include="Classes\Component\Implementation\Media.cs" />
     <Compile Include="Classes\Component\Implementation\NatPolicy.cs" />
     <Compile Include="Classes\Component\Implementation\Softphone.cs" />
@@ -57,7 +58,6 @@
     <Compile Include="Classes\LinphoneException.cs" />
     <Compile Include="Classes\Wrapper\Implementation\CallParamsBuilder.cs" />
     <Compile Include="Classes\Wrapper\Implementation\DllLoader.cs" />
-    <Compile Include="Classes\Wrapper\Implementation\Linphone.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneCall.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneConnectionParams.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneDelegates.cs" />

@@ -75,7 +75,10 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void linphone_call_enable_echo_cancellation(IntPtr call, bool enable);
 
-		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool linphone_call_echo_cancellation_enabled(IntPtr call);        
+
+        [DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern void linphone_core_enable_video_display(IntPtr lc, bool enable);
 
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
@@ -89,5 +92,15 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern float linphone_call_get_speaker_volume_gain(IntPtr call);
-	}
+
+        #region Video
+
+        [DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int linphone_core_set_video_device(IntPtr lc, string device);
+
+        [DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_core_get_video_device(IntPtr lc);
+
+        #endregion
+    }
 }

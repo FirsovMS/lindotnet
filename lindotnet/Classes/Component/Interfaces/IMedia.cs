@@ -5,14 +5,16 @@ namespace lindotnet.Classes.Component.Interfaces
 {
 	public interface IMedia
 	{
-		List<string> PlaybackDevices();
+		bool IsPlaybackDevice(string device);
 
-		List<string> CaptureDevices();
+        bool IsAudioCaptureDevice(string device);
 
-		double GetSpeakerValue(Call call);
+        IEnumerable<Device> GetVideoCaptureDevices();
 
-		void SetSpeakerValue(Call call, float value);
+        IEnumerable<Device> GetSoundCaptureDevices();
 
-		void EchoCancellation(Call call, bool val);
-	}
+        bool TrySetPlaybackDevice(string device_id);
+
+        void ReloadDevices();
+    }
 }

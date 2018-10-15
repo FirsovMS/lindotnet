@@ -216,4 +216,11 @@
         /// </summary>
         LinphoneCallReleased
     }
+
+    public enum DeviceType
+    {
+        Playback,
+        SoundCapture,
+        VideoCapture
+    }
 }

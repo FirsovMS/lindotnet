@@ -4,6 +4,9 @@ namespace lindotnet.Classes.Helpers
 {
 	public static class ComponentExtensions
 	{
-		public static bool IsExist(this Call call) => call != null;
-	}
+        public static bool IsExist(this Call call)
+        {
+            return call != null;
+        }
+    }
 }

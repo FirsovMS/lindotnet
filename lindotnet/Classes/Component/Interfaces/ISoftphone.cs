@@ -2,40 +2,36 @@
 
 namespace lindotnet.Classes.Component.Interfaces
 {
-	public interface ISoftphone
-	{
-		void MakeCall(string uri);
+    public interface ISoftphone
+    {
+        void MakeCall(string uri);
 
-		void ReceiveCall(Call call);
+        void ReceiveCall(Call call);
 
-		void TerminateCall(Call call);
+        void TerminateCall(Call call);
 
-		void HoldCall(Call call);
+        void HoldCall(Call call);
 
-		void ResumeCall(Call call);
+        void ResumeCall(Call call);
 
-		void RedirectCall(Call call, string redirectURI);
+        void RedirectCall(Call call, string redirectURI);
 
-		void TransferCall(Call call, string redirectURI);
+        void TransferCall(Call call, string redirectURI);
 
-		void MakeCallManualRecord(string sipUriOrPhone, string filename);
+        void MakeCallAndRecord(string uri, string filename, bool recordStartInstantly = true);
 
-		void MakeCallAndRecord(string sipUriOrPhone, string filename);
+        void ReceiveCallAndRecord(Call call, string filename, bool recordStartInstantly = true);
 
-		void ReceiveCallManualRecord(Call call, string filename);
+        void SendMessage(string to, string message);
 
-		void ReceiveCallAndRecord(Call call, string filename);
+        void StartRecording(Call call);
 
-		void SendMessage(string to, string message);
+        void PauseRecording(Call call);
 
-		void StartRecording(Call call);
+        void SendDTMFs(Call call, string dtmfs);
 
-		void PauseRecording(Call call);
+        void SetIncomingRingSound(string filename);
 
-		void SendDTMFs(Call call, string dtmfs);
-
-		void SetIncomingRingSound(string filename);
-
-		void SetRingbackSound(string filename);
-	}
+        void SetRingbackSound(string filename);
+    }
 }

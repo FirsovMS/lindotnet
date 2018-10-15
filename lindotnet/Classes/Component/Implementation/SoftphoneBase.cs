@@ -129,13 +129,16 @@ namespace lindotnet.Classes.Component.Implementation
 			}
 		}
 
-		#endregion
+        #endregion
 
-		#region Interface Implementation
+        #region Interface Implementation
 
-		public void Connect() => Connect(NatPolicy.GetDefaultNatPolicy());
+        public void Connect()
+        {
+            Connect(NatPolicy.GetDefaultNatPolicy());
+        }
 
-		public void Connect(NatPolicy natPolicy)
+        public void Connect(NatPolicy natPolicy)
 		{
 			if (ConnectState == ConnectState.Disconnected)
 			{
