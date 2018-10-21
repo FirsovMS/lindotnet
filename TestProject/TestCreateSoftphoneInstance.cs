@@ -1,6 +1,4 @@
-﻿using lindotnet;
-using lindotnet.Classes.Component.Implementation;
-using lindotnet.Classes.Component.Interfaces;
+﻿using lindotnet.Classes.Component.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace TestProject
@@ -18,7 +16,7 @@ namespace TestProject
                 host: "officesip.local",
                 accountName: "TestUser");
 
-            ISoftphone softphoneInstance = Container.CreateNewSoftphone(testAccount);
+            Softphone softphoneInstance = new Softphone(testAccount);
         }
     }
 }

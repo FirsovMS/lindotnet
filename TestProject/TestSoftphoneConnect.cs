@@ -1,8 +1,8 @@
-﻿using lindotnet;
-using lindotnet.Classes.Component.Implementation;
-using lindotnet.Classes.Component.Interfaces;
+﻿using lindotnet.Classes.Component.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
+using System;
+using Assert = NUnit.Framework.Assert;
 
 namespace TestProject
 {
@@ -10,7 +10,7 @@ namespace TestProject
     public class TestSoftphoneConnect
     {
         public Account testAccount { get; private set; }
-        public ISoftphone softphoneInstance { get; private set; }
+        public Softphone softphoneInstance { get; private set; }
 
         [SetUp]
         public void CreateInstances()
@@ -22,19 +22,27 @@ namespace TestProject
                 host: "officesip.local",
                 accountName: "TestUser");
 
-            softphoneInstance = Container.CreateNewSoftphone(testAccount);
+            softphoneInstance = new Softphone(testAccount);
         }
 
         [TestMethod]
         public void TestConnect()
         {
-            softphoneInstance.
+            try
+            {
+                softphoneInstance.Connect();
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.Message);
+            }
+            
         }
 
         [TearDown]
         public void DestroyInstances()
         {
-            
+            Assert.Fail("Not implemented!");
         }
     }
 }
