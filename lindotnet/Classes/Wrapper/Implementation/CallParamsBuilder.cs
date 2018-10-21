@@ -4,7 +4,7 @@ using lindotnet.Classes.Wrapper.Interfaces;
 
 namespace lindotnet.Classes.Wrapper.Implementation
 {
-	internal class CallParamsBuilder : ICallParamsBuilder
+	public class CallParamsBuilder : ICallParamsBuilder
 	{
 		private IntPtr linphoneCore;
 		private IntPtr callParams;

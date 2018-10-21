@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace lindotnet.Classes.Component.Implementation
 {
-    internal class Softphone : SoftphoneBase, ISoftphone
+    public class Softphone : SoftphoneBase, ISoftphone
     {
         #region Props
 

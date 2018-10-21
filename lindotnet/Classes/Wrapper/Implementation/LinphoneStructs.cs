@@ -2,7 +2,7 @@
 
 namespace lindotnet.Classes.Wrapper.Implementation
 {
-    internal static class LinphoneStructs
+    public static class LinphoneStructs
     {
         /// <summary>
         /// Linphone core SIP transport ports
