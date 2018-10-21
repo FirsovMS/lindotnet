@@ -3,7 +3,7 @@ using lindotnet.Classes.Wrapper.Implementation;
 
 namespace lindotnet.Classes.Wrapper.Interfaces
 {
-	internal abstract class ICallParamsBuilder
+	public abstract class ICallParamsBuilder
 	{
 		public abstract CallParamsBuilder BuildAudioParams(bool enableAudio = true);
 

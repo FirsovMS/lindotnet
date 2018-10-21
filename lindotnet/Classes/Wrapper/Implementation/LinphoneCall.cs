@@ -4,7 +4,7 @@ using lindotnet.Classes.Helpers;
 
 namespace lindotnet.Classes.Wrapper.Implementation
 {
-    internal class LinphoneCall : Call
+    public class LinphoneCall : Call
     {
         private IntPtr linphoneCallPtr;
 

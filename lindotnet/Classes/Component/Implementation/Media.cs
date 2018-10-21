@@ -8,7 +8,7 @@ using lindotnet.Classes.Wrapper.Implementation.Modules;
 
 namespace lindotnet.Classes.Component.Implementation
 {
-    internal class Media : IMedia
+    public class Media : IMedia
     {
         #region Fields
 

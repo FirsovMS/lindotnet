@@ -3,7 +3,7 @@ using lindotnet.Classes.Wrapper.Implementation;
 
 namespace lindotnet.Classes.Component.Implementation
 {
-	internal abstract class SoftphoneBase : ISoftphoneBase
+	public abstract class SoftphoneBase : ISoftphoneBase
 	{
 		#region Props
 

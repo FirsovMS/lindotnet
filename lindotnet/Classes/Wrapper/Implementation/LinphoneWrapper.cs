@@ -13,7 +13,7 @@ using lindotnet.Classes.Wrapper.Interfaces;
 
 namespace lindotnet.Classes.Wrapper.Implementation
 {
-    internal class LinphoneWrapper : ILinphoneWrapper
+    public class LinphoneWrapper : ILinphoneWrapper
     {
         #region Fields
 
@@ -120,7 +120,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
         #endregion
 
 #if (DEBUG)
-#warning Loader wouldn't work!
         static LinphoneWrapper()
         {
             IntPtr dllPtr = DllLoader.DoLoadLibrary(Constants.LIBNAME);

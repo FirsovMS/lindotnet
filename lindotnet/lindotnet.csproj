@@ -73,7 +73,6 @@
     <Compile Include="Classes\Wrapper\Implementation\Modules\ProxieModule.cs" />
     <Compile Include="Classes\Wrapper\Interfaces\ICallParamsBuilder.cs" />
     <Compile Include="Classes\Wrapper\Interfaces\ILinphoneWrapper.cs" />
-    <Compile Include="Container.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
