@@ -7,14 +7,14 @@ namespace lindotnet.Classes.Component.Interfaces
 	{
 		bool IsPlaybackDevice(string device);
 
-        bool IsAudioCaptureDevice(string device);
+		bool IsAudioCaptureDevice(string device);
 
-        IEnumerable<Device> GetVideoCaptureDevices();
+		IEnumerable<Device> GetVideoCaptureDevices();
 
-        IEnumerable<Device> GetSoundCaptureDevices();
+		IEnumerable<Device> GetSoundCaptureDevices();
 
-        bool TrySetPlaybackDevice(string device_id);
+		bool TrySetPlaybackDevice(string device_id);
 
-        void ReloadDevices();
-    }
+		void ReloadDevices();
+	}
 }

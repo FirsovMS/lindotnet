@@ -8,28 +8,28 @@ namespace lindotnet.Classes.Wrapper.Implementation
 	/// By http://dimitry-i.blogspot.ru/2013/01/mononet-how-to-dynamically-load-native.html
 	/// </summary>
 	internal static class DllLoader
-    {
+	{
 #if (WINDOWS)
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr LoadLibrary(string fileName);
+		[DllImport("kernel32.dll")]
+		private static extern IntPtr LoadLibrary(string fileName);
 
-        [DllImport("kernel32.dll")]
-        private static extern int FreeLibrary(IntPtr handle);
+		[DllImport("kernel32.dll")]
+		private static extern int FreeLibrary(IntPtr handle);
 
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetProcAddress(IntPtr handle, string procedureName);
+		[DllImport("kernel32.dll")]
+		private static extern IntPtr GetProcAddress(IntPtr handle, string procedureName);
 
-        [DllImport("msvcrt.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int vsprintf(IntPtr buffer, string format, IntPtr args);
+		[DllImport("msvcrt.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+		public static extern int vsprintf(IntPtr buffer, string format, IntPtr args);
 
-        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int _vscprintf(string format, IntPtr args);
+		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+		public static extern int _vscprintf(string format, IntPtr args);
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        public struct VaListWindows
-        {
-            private IntPtr Pointer;
-        }
+		[StructLayout(LayoutKind.Sequential, Pack = 4)]
+		public struct VaListWindows
+		{
+			private IntPtr Pointer;
+		}
 #else
         const int RTLD_NOW = 2;
 
@@ -61,28 +61,28 @@ namespace lindotnet.Classes.Wrapper.Implementation
         }
 #endif
 
-        public static IntPtr DoLoadLibrary(string fileName)
-        {
+		public static IntPtr DoLoadLibrary(string fileName)
+		{
 #if (WINDOWS)
-            return LoadLibrary(fileName);
+			return LoadLibrary(fileName);
 #else
             return dlopen(fileName, RTLD_NOW);
 #endif
-        }
+		}
 
-        public static void DoFreeLibrary(IntPtr handle)
-        {
+		public static void DoFreeLibrary(IntPtr handle)
+		{
 #if (WINDOWS)
-            FreeLibrary(handle);
+			FreeLibrary(handle);
 #else
             dlclose(handle);
 #endif
-        }
+		}
 
-        public static IntPtr DoGetProcAddress(IntPtr dllHandle, string name)
-        {
+		public static IntPtr DoGetProcAddress(IntPtr dllHandle, string name)
+		{
 #if (WINDOWS)
-            return GetProcAddress(dllHandle, name);
+			return GetProcAddress(dllHandle, name);
 #else
             // clear previous errors if any
             dlerror();
@@ -94,24 +94,24 @@ namespace lindotnet.Classes.Wrapper.Implementation
             }
             return res;
 #endif
-        }
+		}
 
-        public static string ProcessVAlist(string format, IntPtr args)
-        {
+		public static string ProcessVAlist(string format, IntPtr args)
+		{
 #if (WINDOWS)
-            int byteLength = _vscprintf(format, args) + 1;
-            IntPtr buffer = Marshal.AllocHGlobal(byteLength);
+			int byteLength = _vscprintf(format, args) + 1;
+			IntPtr buffer = Marshal.AllocHGlobal(byteLength);
 
-            try
-            {
-                vsprintf(buffer, format, args);
+			try
+			{
+				vsprintf(buffer, format, args);
 
-                return Marshal.PtrToStringAnsi(buffer);
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(buffer);
-            }
+				return Marshal.PtrToStringAnsi(buffer);
+			}
+			finally
+			{
+				Marshal.FreeHGlobal(buffer);
+			}
 #else
             bool is64 = System.Environment.Is64BitOperatingSystem;
 
@@ -166,6 +166,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
                 }
             }
 #endif
-        }
-    }
+		}
+	}
 }
