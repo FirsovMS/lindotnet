@@ -27,14 +27,14 @@ namespace lindotnet.Classes.Component.Implementation
 			LinphoneWrapper = new LinphoneWrapper();
 		}
 
-        #region Interface Implementation
+		#region Interface Implementation
 
-        public void Connect()
-        {
-            Connect(NatPolicy.GetDefaultNatPolicy());
-        }
+		public void Connect()
+		{
+			Connect(NatPolicy.GetDefaultNatPolicy());
+		}
 
-        public void Connect(NatPolicy natPolicy)
+		public void Connect(NatPolicy natPolicy)
 		{
 			if (ConnectState == ConnectState.Disconnected)
 			{
