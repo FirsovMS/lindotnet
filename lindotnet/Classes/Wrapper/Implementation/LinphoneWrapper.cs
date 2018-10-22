@@ -139,7 +139,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
                 }
             }
 
-
             DllLoader.DoFreeLibrary(dllPtr);
         }
 #endif
@@ -251,7 +250,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
                 if (call.IsZero())
                 {
+#if (DEBUG)
                     ErrorEvent?.Invoke(null, "Can't call!");
+#endif
                     return;
                 }
 
@@ -613,8 +614,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
                 Thread.Sleep(Constants.LC_SLEEP_TIMEOUT);
             }
 
-            // Phone is disabled, free resources 
-
+            // Phone is disabled, free resources
             NetworkModule.linphone_nat_policy_unref(NatPolicy);
             CoreModule.linphone_core_unref(LinphoneCore);
 
@@ -687,8 +687,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
             await Task.Delay(timeoutInMilliseconds);
             action();
         }
-
-
 
         #endregion
     }

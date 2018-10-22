@@ -1,10 +1,7 @@
 ﻿using lindotnet.Classes.Component.Interfaces;
 using lindotnet.Classes.Wrapper.Implementation;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace lindotnet.Classes.Component.Implementation
 {
@@ -21,7 +18,122 @@ namespace lindotnet.Classes.Component.Implementation
         public Softphone(Account account) : base(account)
         {
             MediaController = new Media(this);
+
+#if (DEBUG)
+            LinphoneWrapper.ErrorEvent += LinphoneWrapper_ErrorEvent;
+#endif
+
+            LinphoneWrapper.RegistrationStateChangedEvent += LinphoneWrapper_RegistrationStateChangedEvent;
+
+            LinphoneWrapper.CallStateChangedEvent += LinphoneWrapper_CallStateChangedEvent;
+
+            LinphoneWrapper.MessageReceivedEvent += LinphoneWrapper_MessageReceivedEvent;
         }
+
+        #region Events
+
+        /// <summary>
+        /// Successful registered
+        /// </summary>
+        public delegate void OnPhoneConnected();
+
+        /// <summary>
+        /// Successful unregistered
+        /// </summary>
+        public delegate void OnPhoneDisconnected();
+
+        /// <summary>
+        /// Phone is ringing
+        /// </summary>
+        /// <param name="call"></param>
+        public delegate void OnIncomingCall(Call call);
+
+        /// <summary>
+        /// Link is established
+        /// </summary>
+        /// <param name="call"></param>
+        public delegate void OnCallActive(Call call);
+
+        /// <summary>
+        /// Call completed
+        /// </summary>
+        /// <param name="call"></param>
+        public delegate void OnCallCompleted(Call call);
+
+        /// <summary>
+        /// Message received
+        /// </summary>
+        /// <param name="call"></param>
+        public delegate void OnMessageReceived(string from, string message);
+
+        /// <summary>
+        /// Error notification
+        /// </summary>
+        /// <param name="call"></param>
+        /// <param name="error"></param>
+        public delegate void OnError(Call call, Error error);
+
+        /// <summary>
+        /// Call Holded
+        /// </summary>
+        /// <param name="call"></param>
+        public delegate void OnHold(Call call);
+
+        /// <summary>
+        /// Raw log notification
+        /// </summary>
+        /// <param name="message"></param>
+        public delegate void OnLog(string message);
+
+        public event OnPhoneConnected PhoneConnectedEvent;
+
+        public event OnPhoneDisconnected PhoneDisconnectedEvent;
+
+        public event OnIncomingCall IncomingCallEvent;
+
+        public event OnCallActive CallActiveEvent;
+
+        public event OnCallCompleted CallCompletedEvent;
+
+        public event OnMessageReceived MessageReceivedEvent;
+
+        public event OnError ErrorEvent;
+
+        public event OnHold CallHolded;
+
+        #endregion
+
+        #region Logger
+
+        private event OnLog logEventHandler;
+
+        public event OnLog LogEvent
+        {
+            add
+            {
+                logEventHandler += value;
+                if (!LinphoneWrapper.LogsEnabled)
+                {
+                    LinphoneWrapper.LogsEnabled = true;
+                    LinphoneWrapper.LogEvent += (message) =>
+                    {
+                        logEventHandler?.Invoke(message);
+                    };
+                }
+            }
+
+            remove
+            {
+                logEventHandler -= value;
+                if (logEventHandler == null)
+                {
+                    LinphoneWrapper.LogsEnabled = false;
+                }
+            }
+        }
+
+        #endregion
+
 
         #region Implement interface
 
@@ -168,7 +280,78 @@ namespace lindotnet.Classes.Component.Implementation
 
         #endregion
 
-        #region Methods
+        #region Private Methods
+
+        private void LinphoneWrapper_MessageReceivedEvent(string from, string message)
+        {
+            MessageReceivedEvent?.Invoke(from, message);
+        }
+
+        private void LinphoneWrapper_CallStateChangedEvent(Call call)
+        {
+            var callState = call.State;
+
+            switch (callState)
+            {
+                case CallState.Active:
+                    LineState = LineState.Busy;
+                    CallActiveEvent?.Invoke(call);
+                    break;
+                case CallState.Hold:
+                    break;
+                case CallState.Error:
+                    LineState = LineState.Free;
+                    ErrorEvent?.Invoke(null, Error.CallError);
+                    break;
+                case CallState.Loading:
+                    LineState = LineState.Busy;
+                    if(call.Type == CallType.Incoming)
+                    {
+                        IncomingCallEvent?.Invoke(call);
+                    }
+                    break;
+                case CallState.Completed:
+                default:
+                    LineState = LineState.Free;
+                    CallCompletedEvent?.Invoke(call);
+                    break;
+            }
+        }
+
+        private void LinphoneWrapper_ErrorEvent(Call call, string message)
+        {
+            Console.WriteLine("Error: {0}", message);
+            ErrorEvent?.Invoke(call, Error.UnknownError);
+        }
+
+        private void LinphoneWrapper_RegistrationStateChangedEvent(LinphoneRegistrationState state)
+        {
+            switch (state)
+            {
+                case LinphoneRegistrationState.LinphoneRegistrationProgress:
+                    ConnectState = ConnectState.Progress;
+                    break;
+
+                case LinphoneRegistrationState.LinphoneRegistrationOk:
+                    ConnectState = ConnectState.Connected;
+                    PhoneConnectedEvent?.Invoke();
+                    break;
+
+                case LinphoneRegistrationState.LinphoneRegistrationCleared:
+                    ConnectState = ConnectState.Disconnected;
+                    PhoneDisconnectedEvent?.Invoke();
+                    break;
+
+                case LinphoneRegistrationState.LinphoneRegistrationFailed:
+                    LinphoneWrapper.DestroyPhone();
+                    ErrorEvent?.Invoke(null, Error.RegisterFailed);
+                    break;
+
+                case LinphoneRegistrationState.LinphoneRegistrationNone:
+                default:
+                    break;
+            }
+        }
 
         private void CheckError()
         {

@@ -10,7 +10,6 @@ namespace lindotnet.Classes
 
         public LinphoneException(string message, Exception exception) : base(message, exception)
         {
-
         }
     }
 }
