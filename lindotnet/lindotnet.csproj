@@ -85,9 +85,6 @@
     <Content Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="linphone.zip" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.csproj">
       <Project>{a73bd9a9-468f-49a2-a920-19ae28f9ee11}</Project>
       <Name>Logger</Name>
