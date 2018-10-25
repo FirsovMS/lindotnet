@@ -5,4 +5,11 @@ lindotnet
 Most of the code was borrowed from [sipdotnet](https://github.com/bedefaced/sipdotnet) .net wrapper.
 But in the process of work it became necessary to expand the functionality. What led to the creation of this project.
 
-Current status: on development process.
+On 10/26/2018 there is a beta release. The main functionality has been tested. Calls, messaging are performed.
+
+### Important!
+Do not try to use the latest "linphone-sdk-4.1.1"!
+A problem with the audio output device has been noticed with it. 
+Use the sdk supplied in the repository!
+
+Current status: Testing. Development of functionality for video calls.
