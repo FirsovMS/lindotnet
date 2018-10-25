@@ -54,6 +54,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestLogger.cs" />
     <Compile Include="TestSoftphone.cs" />
+    <Compile Include="TestSoftphoneMediaController.cs" />
+    <Compile Include="TestSoftphoneMessaging.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

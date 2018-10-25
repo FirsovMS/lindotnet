@@ -69,5 +69,10 @@ namespace lindotnet.Classes.Component.Implementation
 				NatPolicy = natPolicy
 			};
 		}
+
+		~SoftphoneBase()
+		{
+			Disconnect();
+		}
 	}
 }

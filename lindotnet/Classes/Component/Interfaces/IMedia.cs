@@ -11,7 +11,7 @@ namespace lindotnet.Classes.Component.Interfaces
 
 		IEnumerable<Device> GetVideoCaptureDevices();
 
-		IEnumerable<Device> GetSoundCaptureDevices();
+		IEnumerable<Device> GetSoundDevices();
 
 		bool TrySetPlaybackDevice(string device_id);
 

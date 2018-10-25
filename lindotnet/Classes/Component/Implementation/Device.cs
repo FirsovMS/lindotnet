@@ -18,7 +18,7 @@ namespace lindotnet.Classes.Component.Implementation
 			}
 			private set
 			{
-				if (string.IsNullOrWhiteSpace(id))
+				if (string.IsNullOrWhiteSpace(value))
 				{
 					throw new ArgumentException("Device id can be null, empty or whitespace!");
 				}

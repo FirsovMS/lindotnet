@@ -358,5 +358,10 @@ namespace lindotnet.Classes.Component.Implementation
 		}
 
 		#endregion
+
+		~Softphone()
+		{
+			base.Disconnect();
+		}
 	}
 }

@@ -125,7 +125,7 @@ namespace lindotnet.Classes.Component.Implementation
 							IsActive = true
 						};
 					}
-				}
+				} 
 				return videoCaptureDevice;
 			}
 			set
@@ -240,14 +240,14 @@ namespace lindotnet.Classes.Component.Implementation
 				.Select(devID => new Device(devID, DeviceType.VideoCapture));
 		}
 
-		public IEnumerable<Device> GetSoundCaptureDevices()
+		public IEnumerable<Device> GetSoundDevices()
 		{
 			MediaModule.linphone_core_reload_sound_devices(softphone.LinphoneWrapper.LinphoneCore);
 			var soundDevsPtr = MediaModule.linphone_core_get_sound_devices(softphone.LinphoneWrapper.LinphoneCore);
 
 			return soundDevsPtr
 				.ToStringCollection()
-				.Select(deviceID => new Device(deviceID, IsAudioCaptureDevice(deviceID) ? DeviceType.SoundCapture : DeviceType.Playback));
+				.Select(device => new Device(device, IsAudioCaptureDevice(device) ? DeviceType.SoundCapture : DeviceType.Playback));
 		}
 
 		public void ReloadDevices()
@@ -256,6 +256,11 @@ namespace lindotnet.Classes.Component.Implementation
 			MediaModule.linphone_core_reload_video_devices(softphone.LinphoneWrapper.LinphoneCore);
 		}
 
+		/// <summary>
+		/// Use property VideoCaptureDevice instead this method!
+		/// </summary>
+		/// <param name="deviceId"></param>
+		/// <returns></returns>
 		[Obsolete]
 		public bool TrySetPlaybackDevice(string deviceId)
 		{

@@ -205,7 +205,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 				CallModule.linphone_core_terminate_all_calls(LinphoneCore);
 
-				var proxySetDownTask = ExecuteWithDelay(() =>
+				var proxySetDownTask = ComponentExtensions.ExecuteWithDelay(() =>
 				{
 					if (ProxieModule.linphone_proxy_config_is_registered(ProxyCfg))
 					{
@@ -215,7 +215,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 					}
 				}, Constants.LC_CORE_PROXY_DISABLE_TIMEOUT);
 
-				proxySetDownTask.Wait();
+				proxySetDownTask.Wait(Constants.LC_CORE_PROXY_DISABLE_TIMEOUT);
 
 				IsRunning = ProxieModule.linphone_proxy_config_is_registered(ProxyCfg);
 			}
@@ -330,25 +330,16 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 				// Update references
 				IntPtr callref = CallModule.linphone_call_ref(call);
+				LinphoneCall existCall = null;
+
 				if (callref.IsNonZero())
 				{
-					LinphoneCall existCall = null;
 					if (Calls.TryGetValue(callref, out existCall))
 					{
 						if (existCall.State != newCallState)
 						{
 							existCall.State = newCallState;
 							CallStateChangedEvent?.Invoke(existCall);
-						}
-
-						if (callState == LinphoneCallState.LinphoneCallReleased)
-						{
-							CallModule.linphone_call_unref(existCall.LinphoneCallPtr);
-							if (Calls.TryRemove(callref, out existCall))
-							{
-								throw new LinphoneException("Call didnt remove from queue!");
-							}
-							return;
 						}
 					}
 					else
@@ -363,10 +354,16 @@ namespace lindotnet.Classes.Wrapper.Implementation
 							LinphoneCallPtr = callref
 						};
 
-						Calls.AddOrUpdate(callref, existCall, (key, oldValue) => oldValue = existCall);
-
+						Calls.TryAdd(callref, existCall);
 						CallStateChangedEvent?.Invoke(existCall);
 					}
+				}
+
+				if (callState == LinphoneCallState.LinphoneCallReleased)
+				{
+					CallModule.linphone_call_unref(existCall.LinphoneCallPtr);
+					Calls.TryRemove(callref, out existCall);
+					return;
 				}
 			}
 		}
@@ -682,12 +679,14 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			return result;
 		}
 
-		private static async Task ExecuteWithDelay(Action action, int timeoutInMilliseconds)
-		{
-			await Task.Delay(timeoutInMilliseconds);
-			action();
-		}
-
 		#endregion
+
+		~LinphoneWrapper()
+		{
+			if (this.IsRunning)
+			{
+				DestroyPhone();
+			}
+		}
 	}
 }
