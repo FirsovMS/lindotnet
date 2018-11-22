@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoggingAPI;
+using System;
 using System.Runtime.InteropServices;
 
 namespace lindotnet.Classes.Wrapper.Implementation
@@ -23,7 +24,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		public static extern int vsprintf(IntPtr buffer, string format, IntPtr args);
 
 		[DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-		public static extern int _vscprintf(string format, IntPtr args);
+		public static extern int vscprintf(string format, IntPtr args);
 
 		[StructLayout(LayoutKind.Sequential, Pack = 4)]
 		public struct VaListWindows
@@ -88,7 +89,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
             dlerror();
             var res = dlsym(dllHandle, name);
             var errPtr = dlerror();
-            if (errPtr != IntPtr.Zero)
+            if (errPtr.IsNonZero())
             {
                 throw new Exception("dlsym: " + Marshal.PtrToStringAnsi(errPtr));
             }
@@ -99,7 +100,89 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		public static string ProcessVAlist(string format, IntPtr args)
 		{
 #if (WINDOWS)
-			int byteLength = _vscprintf(format, args) + 1;
+			return ProcessVAListOnWindows(format, args);
+#else
+			return ProcessVAListOnLinux(format, args);
+#endif
+		}
+
+#if !WINDOWS
+
+		private static string ProcessVAListOnLinux(string format, IntPtr args)
+		{
+			if (Environment.Is64BitOperatingSystem)
+			{
+				var listStructure = Marshal.PtrToStructure(args, typeof(VaListLinuxX64));
+				int byteLength = 0;
+				IntPtr listPointer = Marshal.AllocHGlobal(Marshal.SizeOf(listStructure));
+
+				try
+				{
+					Marshal.StructureToPtr(listStructure, listPointer, false);
+					byteLength = vsnprintf(IntPtr.Zero, UIntPtr.Zero, format, listPointer) + 1;
+				}
+				catch (Exception ex)
+				{
+					Logger.Error("Can't get bytes length of structure!", ex, Level.Critical);
+				}
+				finally
+				{
+					Marshal.FreeHGlobal(listPointer);
+				}
+
+				IntPtr buffer = Marshal.AllocHGlobal(byteLength);
+				try
+				{
+					listPointer = Marshal.AllocHGlobal(Marshal.SizeOf(listStructure));
+					try
+					{
+						Marshal.StructureToPtr(listStructure, listPointer, false);
+						vsprintf(buffer, format, listPointer);
+						return Marshal.PtrToStringAnsi(buffer);
+					}
+					catch (Exception ex)
+					{
+						Logger.Error("failed processing structure to Ptr!", ex, Level.Critical);
+					}
+					finally
+					{
+						Marshal.FreeHGlobal(listPointer);
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.Error("can't allocate memory for structure!", ex, Level.Fatal);
+				}
+				finally
+				{
+					Marshal.FreeHGlobal(buffer);
+				}
+			}
+			else
+			{
+				int byteLength = vsnprintf(IntPtr.Zero, UIntPtr.Zero, format, args) + 1;
+				IntPtr buffer = Marshal.AllocHGlobal(byteLength);
+				try
+				{
+					vsprintf(buffer, format, args);
+					return Marshal.PtrToStringAnsi(buffer);
+				}
+				catch (Exception ex)
+				{
+					Logger.Error("can't process ptr to string value!", ex, Level.Critical);
+				}
+				finally
+				{
+					Marshal.FreeHGlobal(buffer);
+				}
+			}
+		}
+#endif
+
+		private static string ProcessVAListOnWindows(string format, IntPtr args)
+		{
+			var result = string.Empty;
+			int byteLength = vscprintf(format, args) + 1;
 			IntPtr buffer = Marshal.AllocHGlobal(byteLength);
 
 			try
@@ -108,64 +191,15 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 				return Marshal.PtrToStringAnsi(buffer);
 			}
+			catch (Exception ex)
+			{
+				Logger.Error("Processing virtual addresses failed!", ex, Level.Critical);
+			}
 			finally
 			{
 				Marshal.FreeHGlobal(buffer);
 			}
-#else
-            bool is64 = System.Environment.Is64BitOperatingSystem;
-
-            if (is64)
-            {
-                var listStructure = Marshal.PtrToStructure(args, typeof(VaListLinuxX64));
-                int byteLength = 0;
-                IntPtr listPointer = Marshal.AllocHGlobal(Marshal.SizeOf(listStructure));
-
-                try
-                {
-                    Marshal.StructureToPtr(listStructure, listPointer, false);
-                    byteLength = vsnprintf(IntPtr.Zero, UIntPtr.Zero, format, listPointer) + 1;
-                }
-                finally
-                {
-                    Marshal.FreeHGlobal(listPointer);
-                }
-
-                IntPtr buffer = Marshal.AllocHGlobal(byteLength);
-                try
-                {
-                    listPointer = Marshal.AllocHGlobal(Marshal.SizeOf(listStructure));
-                    try
-                    {
-                        Marshal.StructureToPtr(listStructure, listPointer, false);
-                        vsprintf(buffer, format, listPointer);
-                        return Marshal.PtrToStringAnsi(buffer);
-                    }
-                    finally
-                    {
-                        Marshal.FreeHGlobal(listPointer);
-                    }
-                }
-                finally
-                {
-                    Marshal.FreeHGlobal(buffer);
-                }
-            }
-            else
-            {
-                int byteLength = vsnprintf(IntPtr.Zero, UIntPtr.Zero, format, args) + 1;
-                IntPtr buffer = Marshal.AllocHGlobal(byteLength);
-                try
-                {
-                    vsprintf(buffer, format, args);
-                    return Marshal.PtrToStringAnsi(buffer);
-                }
-                finally
-                {
-                    Marshal.FreeHGlobal(buffer);
-                }
-            }
-#endif
+			return result;
 		}
 	}
 }

@@ -61,7 +61,7 @@ namespace lindotnet.Classes.Component.Implementation
 				if (IsPlaybackDevice(value.ID))
 				{
 					int code = MediaModule.linphone_core_set_playback_device(softphone.LinphoneWrapper.LinphoneCore, value.ID);
-					if (code == -1)
+					if (code == Constants.BOOL_T_FAILED_CODE)
 					{
 						throw new LinphoneException($"Device: {value} cannot be set!");
 					}
@@ -101,7 +101,7 @@ namespace lindotnet.Classes.Component.Implementation
 				if (IsAudioCaptureDevice(value.ID))
 				{
 					int code = MediaModule.linphone_core_set_capture_device(softphone.LinphoneWrapper.LinphoneCore, value.ID);
-					if (code == -1)
+					if (code == Constants.BOOL_T_FAILED_CODE)
 					{
 						throw new LinphoneException($"Device: {value} cannot be set!");
 					}
@@ -139,7 +139,7 @@ namespace lindotnet.Classes.Component.Implementation
 					throw new LinphoneException("Device must be SoundCapture!");
 				}
 				int code = MediaModule.linphone_core_set_video_device(softphone.LinphoneWrapper.LinphoneCore, value.ID);
-				if (code == -1)
+				if (code == Constants.BOOL_T_FAILED_CODE)
 				{
 					throw new LinphoneException($"Device: {value} cannot be set!");
 				}
@@ -268,7 +268,7 @@ namespace lindotnet.Classes.Component.Implementation
 			if (!string.IsNullOrWhiteSpace(deviceId) && MediaModule.linphone_core_sound_device_can_playback(softphone.LinphoneWrapper.LinphoneCore, deviceId))
 			{
 				int code = MediaModule.linphone_core_set_playback_device(softphone.LinphoneWrapper.LinphoneCore, deviceId);
-				result = code != -1;
+				result = code != Constants.BOOL_T_FAILED_CODE;
 			}
 			return result;
 		}

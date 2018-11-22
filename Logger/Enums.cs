@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LoggingAPI
+﻿namespace LoggingAPI
 {
 	public enum Level
 	{
@@ -13,6 +7,7 @@ namespace LoggingAPI
 		Info,
 		Warn,
 		Error,
+		Critical,
 		Fatal
 	}
 }

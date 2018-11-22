@@ -160,7 +160,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			call_state_changed = new LinphoneDelegates.LinphoneCoreCallStateChangedCb(OnCallStateChanged);
 			message_received = new LinphoneDelegates.LinphoneCoreCbsMessageReceivedCb(OnMessageReceived);
 
-			VTable = CreateLinphoneCoreVTable();
+			VTable = CreateDefaultLinphoneCoreVTable();
 			VTablePtr = VTable.ToIntPtr();
 
 #warning Deprecated Now, use factory methods
@@ -277,94 +277,107 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 				bool recordEnable = MarshalingExtensions.TryConvert(CallModule.linphone_call_params_get_record_file(callParams), out recordFile);
 
-				// detecting direction, state and source-destination data by state
-				switch (callState)
-				{
-					case LinphoneCallState.LinphoneCallIncomingReceived:
-					case LinphoneCallState.LinphoneCallIncomingEarlyMedia:
-						newCallState = CallState.Loading;
-						newCallType = CallType.Incoming;
-						MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out from);
-						to = Identity;
-						break;
+				newCallState = GetNewCallState(call, callState, ref newCallType, ref from, ref to, recordEnable);
 
-					case LinphoneCallState.LinphoneCallConnected:
-					case LinphoneCallState.LinphoneCallResuming:
-					case LinphoneCallState.LinphoneCallStreamsRunning:
-					case LinphoneCallState.LinphoneCallPausedByRemote:
-					case LinphoneCallState.LinphoneCallUpdatedByRemote:
-						newCallState = CallState.Active;
-						break;
+				UpdateCallReferences(call, newCallState, newCallType, callState, from, to, recordFile);
+			}
+		}
 
-					case LinphoneCallState.LinphoneCallPaused:
-					case LinphoneCallState.LinphoneCallPausing:
-						newCallState = CallState.Hold;
-						break;
+		private CallState GetNewCallState(IntPtr call, LinphoneCallState callState,
+			ref CallType newCallType, ref string from, ref string to, bool recordEnable)
+		{
+			CallState newCallState;
+			switch (callState)
+			{
+				case LinphoneCallState.LinphoneCallIncomingReceived:
+				case LinphoneCallState.LinphoneCallIncomingEarlyMedia:
+					newCallState = CallState.Loading;
+					newCallType = CallType.Incoming;
+					MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out from);
+					to = Identity;
+					break;
 
-					case LinphoneCallState.LinphoneCallOutgoingInit:
-					case LinphoneCallState.LinphoneCallOutgoingProgress:
-					case LinphoneCallState.LinphoneCallOutgoingRinging:
-					case LinphoneCallState.LinphoneCallOutgoingEarlyMedia:
-						newCallState = CallState.Loading;
-						newCallType = CallType.Outcoming;
-						from = Identity;
-						MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out to);
-						break;
+				case LinphoneCallState.LinphoneCallConnected:
+				case LinphoneCallState.LinphoneCallResuming:
+				case LinphoneCallState.LinphoneCallStreamsRunning:
+				case LinphoneCallState.LinphoneCallPausedByRemote:
+				case LinphoneCallState.LinphoneCallUpdatedByRemote:
+					newCallState = CallState.Active;
+					break;
 
-					case LinphoneCallState.LinphoneCallError:
-						newCallState = CallState.Error;
-						break;
+				case LinphoneCallState.LinphoneCallPaused:
+				case LinphoneCallState.LinphoneCallPausing:
+					newCallState = CallState.Hold;
+					break;
 
-					case LinphoneCallState.LinphoneCallReleased:
-					case LinphoneCallState.LinphoneCallEnd:
-						newCallState = CallState.Completed;
-						if (recordEnable)
-						{
-							GenericModules.linphone_call_stop_recording(call);
-						}
-						break;
-					default:
-						throw new NotImplementedException("Sorry, that feature not implemented!");
-						break;
-				}
+				case LinphoneCallState.LinphoneCallOutgoingInit:
+				case LinphoneCallState.LinphoneCallOutgoingProgress:
+				case LinphoneCallState.LinphoneCallOutgoingRinging:
+				case LinphoneCallState.LinphoneCallOutgoingEarlyMedia:
+					newCallState = CallState.Loading;
+					newCallType = CallType.Outcoming;
+					from = Identity;
+					MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out to);
+					break;
 
-				// Update references
-				IntPtr callref = CallModule.linphone_call_ref(call);
-				LinphoneCall existCall = null;
+				case LinphoneCallState.LinphoneCallError:
+					newCallState = CallState.Error;
+					break;
 
-				if (callref.IsNonZero())
-				{
-					if (Calls.TryGetValue(callref, out existCall))
+				case LinphoneCallState.LinphoneCallReleased:
+				case LinphoneCallState.LinphoneCallEnd:
+					newCallState = CallState.Completed;
+					if (recordEnable)
 					{
-						if (existCall.State != newCallState)
-						{
-							existCall.State = newCallState;
-							CallStateChangedEvent?.Invoke(existCall);
-						}
+						GenericModules.linphone_call_stop_recording(call);
 					}
-					else
-					{
-						existCall = new LinphoneCall()
-						{
-							State = newCallState,
-							Type = newCallType,
-							From = from,
-							To = to,
-							RecordFile = recordFile,
-							LinphoneCallPtr = callref
-						};
+					break;
+				default:
+					throw new NotImplementedException("Sorry, that feature not implemented!");
+					break;
+			}
 
-						Calls.TryAdd(callref, existCall);
+			return newCallState;
+		}
+
+		private void UpdateCallReferences(IntPtr call, CallState newCallState, CallType newCallType,
+			LinphoneCallState callState, string from, string to, string recordFile)
+		{
+			IntPtr callref = CallModule.linphone_call_ref(call);
+			LinphoneCall existCall = null;
+
+			if (callref.IsNonZero())
+			{
+				if (Calls.TryGetValue(callref, out existCall))
+				{
+					if (existCall.State != newCallState)
+					{
+						existCall.State = newCallState;
 						CallStateChangedEvent?.Invoke(existCall);
 					}
 				}
-
-				if (callState == LinphoneCallState.LinphoneCallReleased)
+				else
 				{
-					CallModule.linphone_call_unref(existCall.LinphoneCallPtr);
-					Calls.TryRemove(callref, out existCall);
-					return;
+					existCall = new LinphoneCall()
+					{
+						State = newCallState,
+						Type = newCallType,
+						From = from,
+						To = to,
+						RecordFile = recordFile,
+						LinphoneCallPtr = callref
+					};
+
+					Calls.TryAdd(callref, existCall);
+					CallStateChangedEvent?.Invoke(existCall);
 				}
+			}
+
+			if (callState == LinphoneCallState.LinphoneCallReleased)
+			{
+				CallModule.linphone_call_unref(existCall.LinphoneCallPtr);
+				Calls.TryRemove(callref, out existCall);
+				return;
 			}
 		}
 
@@ -558,7 +571,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		#region Private Methods
 
-		private LinphoneStructs.LinphoneCoreVTable CreateLinphoneCoreVTable()
+		private LinphoneStructs.LinphoneCoreVTable CreateDefaultLinphoneCoreVTable()
 		{
 			return new LinphoneStructs.LinphoneCoreVTable()
 			{
@@ -683,7 +696,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		~LinphoneWrapper()
 		{
-			if (this.IsRunning)
+			if (IsRunning)
 			{
 				DestroyPhone();
 			}

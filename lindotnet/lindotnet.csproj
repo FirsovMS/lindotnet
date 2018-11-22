@@ -85,9 +85,9 @@
     <Content Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Logger\Logger.csproj">
-      <Project>{a73bd9a9-468f-49a2-a920-19ae28f9ee11}</Project>
-      <Name>Logger</Name>
+    <ProjectReference Include="..\Logger\LoggingAPI.csproj">
+      <Project>{034DBB21-B9BD-42C7-ACC3-96C61325E447}</Project>
+      <Name>LoggingAPI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

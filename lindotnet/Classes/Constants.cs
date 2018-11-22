@@ -2,7 +2,7 @@
 {
 	internal static class Constants
 	{
-		internal static readonly string ClientVersion = "1.0.1";
+		internal static readonly string ClientVersion = "1.0.1b";
 
 		internal static readonly string DefaultUserAgent = "liblinphone";
 
@@ -30,5 +30,7 @@
 		internal static readonly int LC_SLEEP_TIMEOUT = 100;
 
 		internal static readonly int LC_CORE_PROXY_DISABLE_TIMEOUT = 2000;
+
+		internal static readonly int BOOL_T_FAILED_CODE = -1;
 	}
 }
