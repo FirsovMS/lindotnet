@@ -65,6 +65,10 @@
       <Project>{907A15FA-DB66-44D9-842E-A7BB288B55F1}</Project>
       <Name>lindotnet</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Logger\LoggingAPI.csproj">
+      <Project>{034DBB21-B9BD-42C7-ACC3-96C61325E447}</Project>
+      <Name>LoggingAPI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

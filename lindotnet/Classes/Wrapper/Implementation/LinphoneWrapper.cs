@@ -1,15 +1,16 @@
-﻿using System;
+﻿using lindotnet.Classes.Component.Implementation;
+using lindotnet.Classes.Helpers;
+using lindotnet.Classes.Wrapper.Implementation.Loader;
+using lindotnet.Classes.Wrapper.Implementation.Modules;
+using lindotnet.Classes.Wrapper.Interfaces;
+using LoggingAPI;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
-using lindotnet.Classes.Component.Implementation;
-using lindotnet.Classes.Helpers;
-using lindotnet.Classes.Wrapper.Implementation.Modules;
-using lindotnet.Classes.Wrapper.Interfaces;
 
 namespace lindotnet.Classes.Wrapper.Implementation
 {
@@ -119,16 +120,28 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		#endregion
 
-#if (DEBUG)
 		static LinphoneWrapper()
 		{
 			IntPtr dllPtr = DllLoader.DoLoadLibrary(Constants.LIBNAME);
 
-			var Modules = from t in Assembly.GetExecutingAssembly().GetTypes()
-						  where t.IsClass && t.Namespace == "Modules"
-						  select t;
+			IEnumerable<Type> modules = null;
+			modules = GetOnReflectModuleClasses(modules);
 
-			foreach (var module in Modules)
+			if (modules != null)
+			{
+				LoadModules(dllPtr, modules);
+
+				DllLoader.DoFreeLibrary(dllPtr);
+			}
+			else
+			{
+				Environment.Exit(-1);
+			}
+		}
+
+		private static void LoadModules(IntPtr dllPtr, IEnumerable<Type> modules)
+		{
+			foreach (var module in modules)
 			{
 				foreach (MethodInfo info in module.GetMethods(BindingFlags.Public | BindingFlags.Static))
 				{
@@ -138,10 +151,22 @@ namespace lindotnet.Classes.Wrapper.Implementation
 					}
 				}
 			}
-
-			DllLoader.DoFreeLibrary(dllPtr);
 		}
-#endif
+
+		private static IEnumerable<Type> GetOnReflectModuleClasses(IEnumerable<Type> Modules)
+		{
+			try
+			{
+				Modules = from t in Assembly.GetExecutingAssembly().GetTypes()
+						  where t.IsClass && t.Namespace == "Modules"
+						  select t;
+			}
+			catch (Exception ex)
+			{
+				Logger.Error("Can't get access or find class with module annotations!", ex, Level.Fatal);
+			}
+			return Modules;
+		}
 
 		public LinphoneWrapper()
 		{

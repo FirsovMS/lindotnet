@@ -1,5 +1,4 @@
-﻿using Addititonals;
-using LoggingAPI.Data;
+﻿using LoggingAPI.Data;
 using NLog;
 using System;
 

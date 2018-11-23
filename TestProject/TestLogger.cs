@@ -1,6 +1,6 @@
-﻿using System;
+﻿using LoggingAPI;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using LoggingAPI;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 

@@ -32,5 +32,13 @@
 		internal static readonly int LC_CORE_PROXY_DISABLE_TIMEOUT = 2000;
 
 		internal static readonly int BOOL_T_FAILED_CODE = -1;
+
+		/// <summary>
+		/// All necessary relocations shall be performed when the object is first loaded. 
+		/// This may waste some processing if relocations are performed for functions that are never referenced. 
+		/// This behavior may be useful for applications that need to know as soon as an object is loaded that all 
+		/// symbols referenced during execution are available.
+		/// </summary>
+		internal static readonly int RTLD_NOW = 2;
 	}
 }
