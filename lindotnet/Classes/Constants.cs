@@ -2,7 +2,7 @@
 {
 	internal static class Constants
 	{
-		internal static readonly string ClientVersion = "1.0.1b";
+		internal static readonly string ClientVersion = "1.0.1";
 
 		internal static readonly string DefaultUserAgent = "liblinphone";
 
