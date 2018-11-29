@@ -50,8 +50,6 @@ namespace lindotnet.Classes.Wrapper.Interfaces
 
 		void OnCallStateChanged(IntPtr lc, IntPtr call, LinphoneCallState cstate, string message);
 
-		void LinphoneLogEvent(string domain, OrtpLogLevel lev, string fmt, IntPtr args);
-
 		void OnMessageReceived(IntPtr lc, IntPtr room, IntPtr message);
 	}
 }

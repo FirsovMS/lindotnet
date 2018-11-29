@@ -62,40 +62,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		#endregion
 
-		#region Log
-
-		public delegate void LogDelegate(string message);
-
-		private event LogDelegate logEventHandler;
-
-		public event LogDelegate LogEvent
-		{
-			add
-			{
-				if (logEventHandler == null && LogsEnabled)
-				{
-					CoreModule.linphone_core_set_log_level(OrtpLogLevel.DEBUG);
-					if (logevent_cb == null)
-					{
-						logevent_cb = new LinphoneDelegates.LogEventCb(LinphoneLogEvent);
-					}
-
-					CoreModule.linphone_core_set_log_handler(Marshal.GetFunctionPointerForDelegate(logevent_cb));
-				}
-				logEventHandler += value;
-			}
-			remove
-			{
-				logEventHandler -= value;
-				if (logEventHandler == null)
-				{
-					CoreModule.linphone_core_set_log_level(OrtpLogLevel.END);
-				}
-			}
-		}
-
-		#endregion
-
 		#region Events
 
 		public event RegistrationStateChangedDelegate RegistrationStateChangedEvent;
@@ -127,7 +93,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			IEnumerable<Type> modules = null;
 			modules = GetOnReflectModuleClasses(modules);
 
-			if (modules != null)
+			if (modules != null && modules.Any())
 			{
 				LoadModules(dllPtr, modules);
 
@@ -244,11 +210,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 				IsRunning = ProxieModule.linphone_proxy_config_is_registered(ProxyCfg);
 			}
-		}
-
-		public void LinphoneLogEvent(string domain, OrtpLogLevel lev, string fmt, IntPtr args)
-		{
-			logEventHandler?.Invoke(DllLoader.ProcessVAlist(fmt, args));
 		}
 
 		public void MakeCall(string uri)
@@ -426,8 +387,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		{
 			if (LinphoneCore.IsNonZero())
 			{
-				logEventHandler?.Invoke("OnRegistrationChanged: " + cstate);
-
 				RegistrationStateChangedEvent?.Invoke(cstate);
 			}
 		}
