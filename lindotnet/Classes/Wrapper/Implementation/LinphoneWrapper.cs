@@ -3,7 +3,6 @@ using lindotnet.Classes.Helpers;
 using lindotnet.Classes.Wrapper.Implementation.Loader;
 using lindotnet.Classes.Wrapper.Implementation.Modules;
 using lindotnet.Classes.Wrapper.Interfaces;
-using LoggingAPI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -89,9 +88,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		static LinphoneWrapper()
 		{
 			IntPtr dllPtr = DllLoader.DoLoadLibrary(Constants.LIBNAME);
-
-			IEnumerable<Type> modules = null;
-			modules = GetOnReflectModuleClasses(modules);
+			var modules = GetOnReflectModuleClasses();
 
 			if (modules != null && modules.Any())
 			{
@@ -119,19 +116,11 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			}
 		}
 
-		private static IEnumerable<Type> GetOnReflectModuleClasses(IEnumerable<Type> Modules)
+		private static IEnumerable<Type> GetOnReflectModuleClasses()
 		{
-			try
-			{
-				Modules = from t in Assembly.GetExecutingAssembly().GetTypes()
-						  where t.IsClass && t.Namespace == "Modules"
-						  select t;
-			}
-			catch (Exception ex)
-			{
-				Logger.Error("Can't get access or find class with module annotations!", ex, Level.Fatal);
-			}
-			return Modules;
+			return from t in Assembly.GetExecutingAssembly().GetTypes()
+				   where t.IsClass && t.Namespace.Contains("Modules")
+				   select t; ;
 		}
 
 		public LinphoneWrapper()
@@ -156,6 +145,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 #warning Deprecated Now, use factory methods
 			LinphoneCore = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
+			//LinphoneCore = CoreModule.linphone_factory_create_core();
 
 			coreLoop = new Thread(LinphoneMainLoop);
 			coreLoop.IsBackground = false;

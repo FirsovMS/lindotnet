@@ -66,7 +66,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			get { return port; }
 			set
 			{
-				if (value >= 0 && value <= UInt16.MaxValue)
+				if (value >= 0 && value <= ushort.MaxValue)
 				{
 					port = value;
 				}

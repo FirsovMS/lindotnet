@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LoggingAPI.Data
 {
@@ -7,8 +8,6 @@ namespace LoggingAPI.Data
 	{
 		public string Description { get; set; }
 
-		public string Message { get; set; }
-
-		public string StackTrace { get; set; }
+		public List<ExceptionMessage> Message { get; set; }
 	}
 }

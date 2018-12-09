@@ -223,4 +223,12 @@
 		SoundCapture,
 		VideoCapture
 	}
+
+	public enum LinphoneMediaEncryption
+	{
+		LinphoneMediaEncryptionNone,
+		LinphoneMediaEncryptionSRTP,
+		LinphoneMediaEncryptionZRTP,
+		LinphoneMediaEncryptionDTLS
+	}
 }

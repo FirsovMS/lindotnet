@@ -1,16 +1,19 @@
-﻿namespace lindotnet.Classes
+﻿using lindotnet.Classes.Helpers;
+using System;
+
+namespace lindotnet.Classes
 {
 	internal static class Constants
 	{
+		private static Lazy<bool> isLinux = new Lazy<bool>(() => ComponentExtensions.CheckIsLinux());
+
+		internal static readonly bool IsLinux = isLinux.Value;
+
 		internal static readonly string ClientVersion = "1.0.1";
 
 		internal static readonly string DefaultUserAgent = "liblinphone";
 
-#if (WINDOWS)
 		internal const string LIBNAME = "linphone.dll";
-#else
-        internal const string LIBNAME = "liblinphone";
-#endif
 
 		/// <summary>
 		/// Disable a sip transport

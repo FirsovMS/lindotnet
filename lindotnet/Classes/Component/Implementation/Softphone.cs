@@ -1,8 +1,8 @@
 ﻿using lindotnet.Classes.Component.Interfaces;
 using lindotnet.Classes.Wrapper.Implementation;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
-using LoggingAPI;
 
 namespace lindotnet.Classes.Component.Implementation
 {
@@ -19,10 +19,6 @@ namespace lindotnet.Classes.Component.Implementation
 		public Softphone(Account account) : base(account)
 		{
 			MediaController = new Media(this);
-
-#if (DEBUG)
-			LinphoneWrapper.ErrorEvent += LinphoneWrapper_ErrorEvent;
-#endif
 
 			LinphoneWrapper.RegistrationStateChangedEvent += LinphoneWrapper_RegistrationStateChangedEvent;
 
@@ -285,12 +281,6 @@ namespace lindotnet.Classes.Component.Implementation
 					CallCompletedEvent?.Invoke(call);
 					break;
 			}
-		}
-
-		private void LinphoneWrapper_ErrorEvent(Call call, string message)
-		{
-			Logger.Error(message);
-			ErrorEvent?.Invoke(call, Error.UnknownError);
 		}
 
 		private void LinphoneWrapper_RegistrationStateChangedEvent(LinphoneRegistrationState state)

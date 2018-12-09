@@ -69,9 +69,9 @@
   <ItemGroup>
     <Compile Include="Data\ErrorDescription.cs" />
     <Compile Include="Data\ErrorMessage.cs" />
+    <Compile Include="Data\ExceptionMessage.cs" />
     <Compile Include="Data\Info.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="Helper.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

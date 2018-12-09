@@ -55,9 +55,11 @@
     <Compile Include="Classes\Component\Implementation\NatPolicy.cs" />
     <Compile Include="Classes\Component\Implementation\Softphone.cs" />
     <Compile Include="Classes\Component\Implementation\SoftphoneBase.cs" />
+    <Compile Include="Classes\Component\Implementation\Video.cs" />
     <Compile Include="Classes\Component\Interfaces\IMedia.cs" />
     <Compile Include="Classes\Component\Interfaces\ISoftphone.cs" />
     <Compile Include="Classes\Component\Interfaces\ISoftphoneBase.cs" />
+    <Compile Include="Classes\Component\Interfaces\IVideo.cs" />
     <Compile Include="Classes\Constants.cs" />
     <Compile Include="Classes\Enums.cs" />
     <Compile Include="Classes\Helpers\ComponentExtensions.cs" />
@@ -70,7 +72,6 @@
     <Compile Include="Classes\Wrapper\Implementation\LinphoneDelegates.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneStructs.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneWrapper.cs" />
-    <Compile Include="Classes\Wrapper\Implementation\Loader\LoadLinuxDlls.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Loader\LoadWindowsDlls.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Loader\Structs.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Modules\CallModule.cs" />
@@ -86,12 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Logger\LoggingAPI.csproj">
-      <Project>{034DBB21-B9BD-42C7-ACC3-96C61325E447}</Project>
-      <Name>LoggingAPI</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

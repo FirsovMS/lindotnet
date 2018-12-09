@@ -1,6 +1,8 @@
-﻿using LoggingAPI.Data;
+﻿using Addititonals.Helpers;
+using LoggingAPI.Data;
 using NLog;
 using System;
+using System.Collections.Generic;
 
 namespace LoggingAPI
 {
@@ -30,8 +32,7 @@ namespace LoggingAPI
 				Error = new ErrorDescription()
 				{
 					Description = description,
-					Message = exception.Message,
-					StackTrace = exception.StackTrace
+					Message = CreateExceptionMessages(exception)
 				},
 				sql = sqlQuery,
 				Date = DateTime.Now,
@@ -39,6 +40,32 @@ namespace LoggingAPI
 			};
 			LogError(message);
 		}
+
+		private static List<ExceptionMessage> CreateExceptionMessages(Exception exception)
+		{
+			var result = new List<ExceptionMessage>();
+			result.Add(CreateExceptionMessage(exception));
+
+			var innerException = exception.InnerException;
+			while (innerException != null)
+			{
+				result.Add(CreateExceptionMessage(exception));
+				innerException = innerException.InnerException;
+			}
+
+			return result;
+		}
+
+		private static ExceptionMessage CreateExceptionMessage(Exception exception)
+		{
+			return new ExceptionMessage
+			{
+				Message = exception.Message,
+				Source = exception.Source,
+				StackTrace = exception.StackTrace
+			};
+		}
+
 
 		private static void LogError(ErrorMessage message)
 		{

@@ -1,11 +1,17 @@
 ﻿using lindotnet.Classes.Component.Interfaces;
 using lindotnet.Classes.Wrapper.Implementation;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace lindotnet.Classes.Component.Implementation
 {
 	public abstract class SoftphoneBase : ISoftphoneBase
 	{
+		private readonly ConcurrentDictionary<string, string> errors;
+
 		#region Props
+
+		public bool HasErrors { get => errors.Any(); }
 
 		public ConnectState ConnectState { get; set; }
 
@@ -23,6 +29,8 @@ namespace lindotnet.Classes.Component.Implementation
 
 		public SoftphoneBase(Account account)
 		{
+			errors = new ConcurrentDictionary<string, string>();
+
 			Account = account ?? throw new LinphoneException("Softphone requires as Account to make calls!");
 			LinphoneWrapper = new LinphoneWrapper();
 		}

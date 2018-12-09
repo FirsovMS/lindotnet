@@ -8,16 +8,30 @@ namespace lindotnet.Classes.Wrapper.Implementation.Loader
 		[StructLayout(LayoutKind.Sequential, Pack = 4)]
 		public struct VaListWindows
 		{
-			private IntPtr Pointer;
+			public IntPtr Pointer;
 		}
 
 		[StructLayout(LayoutKind.Sequential, Pack = 4)]
 		public struct VaListLinuxX64
 		{
-			private UInt32 gp_offset;
-			private UInt32 fp_offset;
-			private IntPtr overflow_arg_area;
-			private IntPtr reg_save_area;
+			public UInt32 gp_offset;
+			public UInt32 fp_offset;
+			public IntPtr overflow_arg_area;
+			public IntPtr reg_save_area;
+		}
+
+		[StructLayout(LayoutKind.Sequential, Pack = 4)]
+		public struct MSVideoSize
+		{
+			public UInt32 width;
+			public UInt32 height;
+		}
+
+		public struct BctbxList
+		{
+			public IntPtr next;
+			public IntPtr prev;
+			public IntPtr data;
 		}
 	}
 }
