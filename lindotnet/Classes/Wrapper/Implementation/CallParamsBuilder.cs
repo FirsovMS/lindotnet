@@ -6,39 +6,39 @@ namespace lindotnet.Classes.Wrapper.Implementation
 {
 	public class CallParamsBuilder : ICallParamsBuilder
 	{
-		private IntPtr linphoneCore;
-		private IntPtr callParams;
+		private readonly IntPtr _linphoneCore;
+		private IntPtr _callParams;
 
 		public CallParamsBuilder(IntPtr linphoneCore)
 		{
-			this.linphoneCore = linphoneCore;
+			_linphoneCore = linphoneCore;
 		}
 
 		public override IntPtr Build()
 		{
-			return callParams;
+			return _callParams;
 		}
 
 		public override CallParamsBuilder BuildAudioParams(bool enableAudio = true)
 		{
-			callParams = CallModule.linphone_core_create_call_params(linphoneCore, IntPtr.Zero);
-			callParams = CallModule.linphone_call_params_ref(callParams);
+			_callParams = CallModule.linphone_core_create_call_params(_linphoneCore, IntPtr.Zero);
+			_callParams = CallModule.linphone_call_params_ref(_callParams);
 
-			CallModule.linphone_call_params_enable_audio(callParams, enableAudio);
+			CallModule.linphone_call_params_enable_audio(_callParams, enableAudio);
 
 			return this;
 		}
 
 		public override CallParamsBuilder BuildMediaParams(bool enablEarlyMediaSending = true)
 		{
-			CallModule.linphone_call_params_enable_early_media_sending(callParams, enablEarlyMediaSending);
+			CallModule.linphone_call_params_enable_early_media_sending(_callParams, enablEarlyMediaSending);
 
 			return this;
 		}
 
 		public override CallParamsBuilder BuildVideoParams(bool enableVideo = false)
 		{
-			CallModule.linphone_call_params_enable_video(callParams, enableVideo);
+			CallModule.linphone_call_params_enable_video(_callParams, enableVideo);
 
 			return this;
 		}

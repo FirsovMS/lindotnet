@@ -1,5 +1,6 @@
 ﻿using lindotnet.Classes.Component.Interfaces;
 using lindotnet.Classes.Wrapper.Implementation;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
@@ -13,15 +14,15 @@ namespace lindotnet.Classes.Component.Implementation
 
 		public bool HasErrors { get => errors.Any(); }
 
-		public ConnectState ConnectState { get; set; }
+		public ConnectState ConnectionState { get; set; }
 
 		public LineState LineState { get; set; }
 
 		public Account Account { get; set; }
 
-		public string Useragent { get; set; } = Constants.DefaultUserAgent;
+		public string UserAgent { get; set; } = Constants.DefaultUserAgent;
 
-		public string Version { get; set; } = Constants.ClientVersion;
+		public Version Version { get; } = Constants.ClientVersion;
 
 		public LinphoneWrapper LinphoneWrapper { get; private set; }
 
@@ -44,9 +45,9 @@ namespace lindotnet.Classes.Component.Implementation
 
 		public void Connect(NatPolicy natPolicy)
 		{
-			if (ConnectState == ConnectState.Disconnected)
+			if (ConnectionState == ConnectState.Disconnected)
 			{
-				ConnectState = ConnectState.Progress;
+				ConnectionState = ConnectState.Progress;
 
 				var connParams = CreateConnectionParams(Account, natPolicy);
 				LinphoneWrapper.CreatePhone(connParams);
@@ -55,7 +56,7 @@ namespace lindotnet.Classes.Component.Implementation
 
 		public void Disconnect()
 		{
-			if (ConnectState == ConnectState.Connected)
+			if (ConnectionState == ConnectState.Connected)
 			{
 				LinphoneWrapper.DestroyPhone();
 			}
@@ -72,8 +73,8 @@ namespace lindotnet.Classes.Component.Implementation
 				AccountAlias = Account.AccountName,
 				Host = Account.Host,
 				Port = Account.Port,
-				Agent = Useragent,
-				Version = Version,
+				Agent = UserAgent,
+				Version = Version.ToString(),
 				NatPolicy = natPolicy
 			};
 		}

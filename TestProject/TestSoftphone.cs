@@ -49,7 +49,7 @@ namespace TestProject
 
 				Task.Delay(ConnectionDelay).Wait();
 
-				Assert.AreEqual(lindotnet.Classes.ConnectState.Connected, softphoneInstance.ConnectState);
+				Assert.AreEqual(lindotnet.Classes.ConnectState.Connected, softphoneInstance.ConnectionState);
 			}
 			finally
 			{

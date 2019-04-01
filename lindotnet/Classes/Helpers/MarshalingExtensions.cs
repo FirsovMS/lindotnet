@@ -46,7 +46,7 @@ namespace lindotnet.Classes.Helpers
 				string temp = null;
 				while (element.IsNonZero())
 				{
-					if (TryConvert(element, out temp))
+					if (TryConvertString(element, out temp))
 					{
 						result.Add(temp);
 					}
@@ -58,7 +58,7 @@ namespace lindotnet.Classes.Helpers
 			return result;
 		}
 
-		public static bool TryConvert(IntPtr ptr, out string convertedString)
+		public static bool TryConvertString(IntPtr ptr, out string convertedString)
 		{
 			convertedString = string.Empty;
 			if (ptr.IsNonZero())

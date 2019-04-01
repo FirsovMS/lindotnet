@@ -105,11 +105,8 @@ namespace lindotnet.Classes.Component.Implementation
 		public void HoldCall(Call call)
 		{
 			CheckError(call);
-			var linphonceCall = call as LinphoneCall;
-			if (linphonceCall != null)
-			{
-				LinphoneWrapper.HoldCall(linphonceCall);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.HoldCall(linphoneCall);
 		}
 
 		public void MakeCall(string uri)
@@ -135,61 +132,43 @@ namespace lindotnet.Classes.Component.Implementation
 		public void PauseRecording(Call call)
 		{
 			CheckError(call);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.PauseRecording(linphoneCall);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.PauseRecording(linphoneCall);
 		}
 
 		public void ReceiveCall(Call call)
 		{
 			CheckError(call);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.ReceiveCall(linphoneCall);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.ReceiveCall(linphoneCall);
 		}
 
 		public void ReceiveCallAndRecord(Call call, string filename, bool recordStartInstantly = false)
 		{
 			CheckError(call, filename);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.ReceiveCallAndRecord(linphoneCall, filename, recordStartInstantly);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.ReceiveCallAndRecord(linphoneCall, filename, recordStartInstantly);
 		}
 
 		public void RedirectCall(Call call, string redirectURI)
 		{
 			CheckError(call, redirectURI);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.RedirectCall(linphoneCall, redirectURI);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.RedirectCall(linphoneCall, redirectURI);
 		}
 
 		public void ResumeCall(Call call)
 		{
 			CheckError(call);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.ResumeCall(linphoneCall);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.ResumeCall(linphoneCall);
 		}
 
 		public void SendDTMFs(Call call, string dtmfs)
 		{
 			CheckError(call, dtmfs);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.SendDTMFs(linphoneCall, dtmfs);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.SendDTMFs(linphoneCall, dtmfs);
 		}
 
 		public void SendMessage(string to, string message)
@@ -216,31 +195,22 @@ namespace lindotnet.Classes.Component.Implementation
 		public void StartRecording(Call call)
 		{
 			CheckError(call);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.StartRecording(linphoneCall);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.StartRecording(linphoneCall);
 		}
 
 		public void TerminateCall(Call call)
 		{
 			CheckError(call);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.TerminateCall(linphoneCall);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.TerminateCall(linphoneCall);
 		}
 
 		public void TransferCall(Call call, string redirectURI)
 		{
 			CheckError(call, redirectURI);
-			var linphoneCall = call as LinphoneCall;
-			if (linphoneCall != null)
-			{
-				LinphoneWrapper.TransferCall(linphoneCall, redirectURI);
-			}
+			var linphoneCall = (LinphoneCall)call;
+			LinphoneWrapper.TransferCall(linphoneCall, redirectURI);
 		}
 
 		#endregion
@@ -288,16 +258,16 @@ namespace lindotnet.Classes.Component.Implementation
 			switch (state)
 			{
 				case LinphoneRegistrationState.LinphoneRegistrationProgress:
-					ConnectState = ConnectState.Progress;
+					ConnectionState = ConnectState.Progress;
 					break;
 
 				case LinphoneRegistrationState.LinphoneRegistrationOk:
-					ConnectState = ConnectState.Connected;
+					ConnectionState = ConnectState.Connected;
 					PhoneConnectedEvent?.Invoke();
 					break;
 
 				case LinphoneRegistrationState.LinphoneRegistrationCleared:
-					ConnectState = ConnectState.Disconnected;
+					ConnectionState = ConnectState.Disconnected;
 					PhoneDisconnectedEvent?.Invoke();
 					break;
 
@@ -314,13 +284,13 @@ namespace lindotnet.Classes.Component.Implementation
 
 		private void CheckError()
 		{
-			if (ConnectState != ConnectState.Connected)
-			{
-				throw new LinphoneException("Softphone didn't connected!");
-			}
-			if (LinphoneWrapper == null || LinphoneWrapper?.IsRunning == false)
+			if (!LinphoneWrapper.IsRunning)
 			{
 				throw new LinphoneException("Wrapper didn't ready!");
+			}
+			if (ConnectionState != ConnectState.Connected)
+			{
+				throw new LinphoneException("Softphone didn't connected!");
 			}
 		}
 

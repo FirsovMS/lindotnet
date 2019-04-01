@@ -17,15 +17,15 @@ namespace lindotnet.Classes.Wrapper.Implementation
 	{
 		#region Fields
 
-		private LinphoneDelegates.LogEventCb logevent_cb;
+		private readonly LinphoneDelegates.LogEventCb _logeventCB;
 
-		private LinphoneDelegates.LinphoneCoreRegistrationStateChangedCb registration_state_changed;
+		private LinphoneDelegates.LinphoneCoreRegistrationStateChangedCb _registrationStateChanged;
 
-		private LinphoneDelegates.LinphoneCoreCallStateChangedCb call_state_changed;
+		private LinphoneDelegates.LinphoneCoreCallStateChangedCb _callStateChanged;
 
-		private LinphoneDelegates.LinphoneCoreCbsMessageReceivedCb message_received;
+		private LinphoneDelegates.LinphoneCoreCbsMessageReceivedCb _messageReceived;
 
-		private Thread coreLoop;
+		private Thread _coreLoop;
 
 		#endregion
 
@@ -136,9 +136,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		{
 			IsRunning = true;
 
-			registration_state_changed = new LinphoneDelegates.LinphoneCoreRegistrationStateChangedCb(OnRegistrationChanged);
-			call_state_changed = new LinphoneDelegates.LinphoneCoreCallStateChangedCb(OnCallStateChanged);
-			message_received = new LinphoneDelegates.LinphoneCoreCbsMessageReceivedCb(OnMessageReceived);
+			_registrationStateChanged = new LinphoneDelegates.LinphoneCoreRegistrationStateChangedCb(OnRegistrationChanged);
+			_callStateChanged = new LinphoneDelegates.LinphoneCoreCallStateChangedCb(OnCallStateChanged);
+			_messageReceived = new LinphoneDelegates.LinphoneCoreCbsMessageReceivedCb(OnMessageReceived);
 
 			VTable = CreateDefaultLinphoneCoreVTable();
 			VTablePtr = VTable.ToIntPtr();
@@ -147,9 +147,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			LinphoneCore = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
 			//LinphoneCore = CoreModule.linphone_factory_create_core();
 
-			coreLoop = new Thread(LinphoneMainLoop);
-			coreLoop.IsBackground = false;
-			coreLoop.Start();
+			_coreLoop = new Thread(LinphoneMainLoop);
+			_coreLoop.IsBackground = false;
+			_coreLoop.Start();
 
 			TransportConfig = CreateTransportConfig();
 			TransportConfigPtr = TransportConfig.ToIntPtr();
@@ -244,16 +244,15 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		{
 			if (LinphoneCore.IsNonZero() && IsRunning)
 			{
-				var newCallState = CallState.None;
 				var newCallType = CallType.None;
 				string from, to, recordFile;
 
 				from = to = recordFile = null;
 				IntPtr callParams = CallModule.linphone_call_get_params(call);
 
-				bool recordEnable = MarshalingExtensions.TryConvert(CallModule.linphone_call_params_get_record_file(callParams), out recordFile);
+				bool recordEnable = MarshalingExtensions.TryConvertString(CallModule.linphone_call_params_get_record_file(callParams), out recordFile);
 
-				newCallState = GetNewCallState(call, callState, ref newCallType, ref from, ref to, recordEnable);
+				var newCallState = GetNewCallState(call, callState, ref newCallType, ref from, ref to, recordEnable);
 
 				UpdateCallReferences(call, newCallState, newCallType, callState, from, to, recordFile);
 			}
@@ -262,14 +261,14 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		private CallState GetNewCallState(IntPtr call, LinphoneCallState callState,
 			ref CallType newCallType, ref string from, ref string to, bool recordEnable)
 		{
-			CallState newCallState;
+			var newCallState = CallState.None;
 			switch (callState)
 			{
 				case LinphoneCallState.LinphoneCallIncomingReceived:
 				case LinphoneCallState.LinphoneCallIncomingEarlyMedia:
 					newCallState = CallState.Loading;
 					newCallType = CallType.Incoming;
-					MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out from);
+					MarshalingExtensions.TryConvertString(CallModule.linphone_call_get_remote_address_as_string(call), out from);
 					to = Identity;
 					break;
 
@@ -293,7 +292,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 					newCallState = CallState.Loading;
 					newCallType = CallType.Outcoming;
 					from = Identity;
-					MarshalingExtensions.TryConvert(CallModule.linphone_call_get_remote_address_as_string(call), out to);
+					MarshalingExtensions.TryConvertString(CallModule.linphone_call_get_remote_address_as_string(call), out to);
 					break;
 
 				case LinphoneCallState.LinphoneCallError:
@@ -310,7 +309,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
 					break;
 				default:
 					throw new NotImplementedException("Sorry, that feature not implemented!");
-					break;
 			}
 
 			return newCallState;
@@ -366,7 +364,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 				var chatMessagePtr = ChatModule.linphone_chat_message_get_text(message);
 
 				string addressString, chatMessage;
-				if (MarshalingExtensions.TryConvert(addressStringPtr, out addressString) && MarshalingExtensions.TryConvert(chatMessagePtr, out chatMessage))
+				if (MarshalingExtensions.TryConvertString(addressStringPtr, out addressString) && MarshalingExtensions.TryConvertString(chatMessagePtr, out chatMessage))
 				{
 					MessageReceivedEvent?.Invoke(addressString, chatMessage);
 				}
@@ -550,15 +548,15 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			return new LinphoneStructs.LinphoneCoreVTable()
 			{
 				global_state_changed = IntPtr.Zero,
-				registration_state_changed = Marshal.GetFunctionPointerForDelegate(registration_state_changed),
-				call_state_changed = Marshal.GetFunctionPointerForDelegate(call_state_changed),
+				registration_state_changed = Marshal.GetFunctionPointerForDelegate(_registrationStateChanged),
+				call_state_changed = Marshal.GetFunctionPointerForDelegate(_callStateChanged),
 				notify_presence_received = IntPtr.Zero,
 				notify_presence_received_for_uri_or_tel = IntPtr.Zero,
 				new_subscription_requested = IntPtr.Zero,
 				auth_info_requested = IntPtr.Zero,
 				authentication_requested = IntPtr.Zero,
 				call_log_updated = IntPtr.Zero,
-				message_received = Marshal.GetFunctionPointerForDelegate(message_received),
+				message_received = Marshal.GetFunctionPointerForDelegate(_messageReceived),
 				message_received_unable_decrypt = IntPtr.Zero,
 				is_composing_received = IntPtr.Zero,
 				dtmf_received = IntPtr.Zero,
@@ -605,15 +603,15 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			VTablePtr.Free();
 			TransportConfigPtr.Free();
 
-			registration_state_changed = null;
-			call_state_changed = null;
+			_registrationStateChanged = null;
+			_callStateChanged = null;
 
 			LinphoneCore = IntPtr.Zero;
 			ProxyCfg = IntPtr.Zero;
 			AuthInfo = IntPtr.Zero;
 			TransportConfigPtr = IntPtr.Zero;
 
-			coreLoop = null;
+			_coreLoop = null;
 			Identity = null;
 			ServerHost = null;
 

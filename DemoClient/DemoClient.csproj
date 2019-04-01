@@ -55,10 +55,6 @@
       <Project>{907a15fa-db66-44d9-842e-a7bb288b55f1}</Project>
       <Name>lindotnet</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Logger\LoggingAPI.csproj">
-      <Project>{034dbb21-b9bd-42c7-acc3-96c61325e447}</Project>
-      <Name>LoggingAPI</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

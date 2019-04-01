@@ -37,8 +37,7 @@ namespace lindotnet.Classes.Component.Implementation
 				if (playbackDevice == null)
 				{
 					IntPtr device = MediaModule.linphone_core_get_playback_device(softphone.LinphoneWrapper.LinphoneCore);
-					string deviceName = null;
-					if (MarshalingExtensions.TryConvert(device, out deviceName))
+					if (MarshalingExtensions.TryConvertString(device, out string deviceName))
 					{
 						playbackDevice = new Device(deviceName)
 						{
@@ -77,8 +76,7 @@ namespace lindotnet.Classes.Component.Implementation
 				if (audioCaptureDevice == null)
 				{
 					var devicePtr = MediaModule.linphone_core_get_capture_device(softphone.LinphoneWrapper.LinphoneCore);
-					string deviceName = null;
-					if (MarshalingExtensions.TryConvert(devicePtr, out deviceName))
+					if (MarshalingExtensions.TryConvertString(devicePtr, out string deviceName))
 					{
 						audioCaptureDevice = new Device(deviceName)
 						{
@@ -117,8 +115,7 @@ namespace lindotnet.Classes.Component.Implementation
 				if (videoCaptureDevice == null)
 				{
 					var devicePtr = MediaModule.linphone_core_get_video_device(softphone.LinphoneWrapper.LinphoneCore);
-					string deviceName = null;
-					if (MarshalingExtensions.TryConvert(devicePtr, out deviceName))
+					if (MarshalingExtensions.TryConvertString(devicePtr, out string deviceName))
 					{
 						videoCaptureDevice = new Device(deviceName)
 						{

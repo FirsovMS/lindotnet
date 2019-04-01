@@ -5,36 +5,32 @@ namespace lindotnet.Classes
 {
 	internal static class Constants
 	{
-		private static Lazy<bool> isLinux = new Lazy<bool>(() => ComponentExtensions.CheckIsLinux());
+		public static readonly Version ClientVersion = new Version("1.0.1a");
 
-		internal static readonly bool IsLinux = isLinux.Value;
+		public static readonly string DefaultUserAgent = "liblinphone";
 
-		internal static readonly string ClientVersion = "1.0.1";
-
-		internal static readonly string DefaultUserAgent = "liblinphone";
-
-		internal const string LIBNAME = "linphone.dll";
+		public const string LIBNAME = "linphone.dll";
 
 		/// <summary>
 		/// Disable a sip transport
 		/// </summary>
-		internal static readonly int LC_SIP_TRANSPORT_DISABLED = 0;
+		public static readonly int LC_SIP_TRANSPORT_DISABLED = 0;
 
 		/// <summary>
 		/// Randomly chose a sip port for this transport
 		/// </summary>
-		internal static readonly int LC_SIP_TRANSPORT_RANDOM = -1;
+		public static readonly int LC_SIP_TRANSPORT_RANDOM = -1;
 
 		/// <summary>
 		/// Don't create any server socket for this transport, ie don't bind on any port
 		/// </summary>
-		internal static readonly int LC_SIP_TRANSPORT_DONTBIND = -2;
+		public static readonly int LC_SIP_TRANSPORT_DONTBIND = -2;
 
-		internal static readonly int LC_SLEEP_TIMEOUT = 100;
+		public static readonly int LC_SLEEP_TIMEOUT = 100;
 
-		internal static readonly int LC_CORE_PROXY_DISABLE_TIMEOUT = 2000;
+		public static readonly int LC_CORE_PROXY_DISABLE_TIMEOUT = 2000;
 
-		internal static readonly int BOOL_T_FAILED_CODE = -1;
+		public static readonly int BOOL_T_FAILED_CODE = -1;
 
 		/// <summary>
 		/// All necessary relocations shall be performed when the object is first loaded. 
@@ -42,6 +38,6 @@ namespace lindotnet.Classes
 		/// This behavior may be useful for applications that need to know as soon as an object is loaded that all 
 		/// symbols referenced during execution are available.
 		/// </summary>
-		internal static readonly int RTLD_NOW = 2;
+		public static readonly int RTLD_NOW = 2;
 	}
 }

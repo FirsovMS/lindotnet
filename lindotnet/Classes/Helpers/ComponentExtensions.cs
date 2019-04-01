@@ -16,11 +16,5 @@ namespace lindotnet.Classes.Helpers
 			await Task.Delay(timeoutInMilliseconds);
 			action();
 		}
-
-		internal static bool CheckIsLinux()
-		{
-			int platformId = (int)Environment.OSVersion.Platform;
-			return (platformId == 4) || (platformId == 6) || (platformId == 128);
-		}
 	}
 }

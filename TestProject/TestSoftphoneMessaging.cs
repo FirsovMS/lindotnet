@@ -31,7 +31,7 @@ namespace TestProject
 
 				Task.Delay(ConnectionDelay).Wait();
 
-				if(softphoneInstance.ConnectState == ConnectState.Connected)
+				if(softphoneInstance.ConnectionState == ConnectState.Connected)
 				{
 					softphoneInstance.SendMessage(ExampleURI, mock);
 				}

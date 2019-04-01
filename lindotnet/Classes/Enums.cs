@@ -1,4 +1,6 @@
-﻿namespace lindotnet.Classes
+﻿using System;
+
+namespace lindotnet.Classes
 {
 	public enum CallType
 	{
@@ -67,6 +69,7 @@
 		Busy
 	}
 
+	[Flags]
 	/// <summary>
 	/// Logging level
 	/// https://github.com/BelledonneCommunications/ortp/blob/master/include/ortp/logging.h
@@ -75,12 +78,12 @@
 	public enum OrtpLogLevel
 	{
 		DEBUG = 1,
-		TRACE = 1 << 1,
-		MESSAGE = 1 << 2,
-		WARNING = 1 << 3,
-		ERROR = 1 << 4,
-		FATAL = 1 << 5,
-		END = 1 << 6
+		TRACE = 2,
+		MESSAGE = 4,
+		WARNING = 8,
+		ERROR = 16,
+		FATAL = 32,
+		END = 64
 	}
 
 	/// <summary>
