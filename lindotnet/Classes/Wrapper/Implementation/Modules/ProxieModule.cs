@@ -6,7 +6,7 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 	/// <summary>
 	/// http://www.linphone.org/docs/liblinphone/group__proxies.html
 	/// </summary>
-	internal static class ProxieModule
+	internal class ProxieModule
 	{
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern IntPtr linphone_core_create_proxy_config(IntPtr lc);

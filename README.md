@@ -19,11 +19,9 @@ Requirements
 ------------
 
 * .NET 4.5.1 framework on Windows, Linux don't tested.
-* included liblinphone [library binaries](https://github.com/FirsovMS/lindotnet/sdk/linphone.zip) version 4.0.1rc
-
-### Important!
-
-Do not try to use the latest release "linphone-sdk-4.1.1"!<br/>A problem with the audio output device has been noticed with it.<br/>Use the sdk supplied in the repository!
+* included liblinphone SDK:
+	* [library binaries](https://github.com/FirsovMS/lindotnet/sdk/linphone-sdk-4.0.1-win32.zip) version 4.0.1rc
+	* [library binaries](https://github.com/FirsovMS/lindotnet/sdk/linphone-sdk-4.1.1-win32.zip) version 4.1.1 (dev branch)
 
 Documentation Page
 ------------------

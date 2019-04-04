@@ -17,13 +17,11 @@ namespace lindotnet.Classes.Wrapper.Implementation
 	{
 		#region Fields
 
-		private readonly LinphoneDelegates.LogEventCb _logeventCB;
+		private LinphoneDelegates.LinphoneCoreRegistrationStateChanged _registrationStateChanged;
 
-		private LinphoneDelegates.LinphoneCoreRegistrationStateChangedCb _registrationStateChanged;
+		private LinphoneDelegates.LinphoneCoreCallStateChanged _callStateChanged;
 
-		private LinphoneDelegates.LinphoneCoreCallStateChangedCb _callStateChanged;
-
-		private LinphoneDelegates.LinphoneCoreCbsMessageReceivedCb _messageReceived;
+		private LinphoneDelegates.LinphoneCoreCbsMessageReceived _messageReceived;
 
 		private Thread _coreLoop;
 
@@ -67,15 +65,13 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		public event CallStateChangedDelegate CallStateChangedEvent;
 
-		public event ErrorDelegate ErrorEvent;
-
 		public event MessageReceivedDelegate MessageReceivedEvent;
 
 		#endregion
 
 		#region Delegates
 
-		public delegate void RegistrationStateChangedDelegate(LinphoneRegistrationState state);
+		public delegate void RegistrationStateChangedDelegate(LinphoneRegistrationState state, string message = null);
 
 		public delegate void CallStateChangedDelegate(Call call);
 
@@ -87,46 +83,23 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 		static LinphoneWrapper()
 		{
-			IntPtr dllPtr = DllLoader.DoLoadLibrary(Constants.LIBNAME);
-			var modules = GetOnReflectModuleClasses();
-
-			if (modules != null && modules.Any())
-			{
-				LoadModules(dllPtr, modules);
-
-				DllLoader.DoFreeLibrary(dllPtr);
-			}
-			else
-			{
-				Environment.Exit(-1);
-			}
+			SetUpModuleContainer();
 		}
 
-		private static void LoadModules(IntPtr dllPtr, IEnumerable<Type> modules)
+		private static void SetUpModuleContainer()
 		{
-			foreach (var module in modules)
-			{
-				foreach (MethodInfo info in module.GetMethods(BindingFlags.Public | BindingFlags.Static))
-				{
-					if (DllLoader.DoGetProcAddress(dllPtr, info.Name).IsZero())
-					{
-						throw new EntryPointNotFoundException($"Invalid linphone library version: {info.Name} is not found.");
-					}
-				}
-			}
-		}
-
-		private static IEnumerable<Type> GetOnReflectModuleClasses()
-		{
-			return from t in Assembly.GetExecutingAssembly().GetTypes()
-				   where t.IsClass && t.Namespace.Contains("Modules")
-				   select t; ;
+			ModuleContainer.SetModule<CoreModule>(new CoreModule());
+			ModuleContainer.SetModule<GenericModules>(new GenericModules());
+			ModuleContainer.SetModule<NetworkModule>(new NetworkModule());
+			ModuleContainer.SetModule<ProxieModule>(new ProxieModule());
+			ModuleContainer.SetModule<MediaModule>(new MediaModule());
+			ModuleContainer.SetModule<CallModule>(new CallModule());
+			ModuleContainer.SetModule<ChatModule>(new ChatModule());
 		}
 
 		public LinphoneWrapper()
 		{
 			Calls = new ConcurrentDictionary<IntPtr, LinphoneCall>();
-
 			CoreModule.linphone_core_set_log_level(OrtpLogLevel.END);
 		}
 
@@ -136,19 +109,19 @@ namespace lindotnet.Classes.Wrapper.Implementation
 		{
 			IsRunning = true;
 
-			_registrationStateChanged = new LinphoneDelegates.LinphoneCoreRegistrationStateChangedCb(OnRegistrationChanged);
-			_callStateChanged = new LinphoneDelegates.LinphoneCoreCallStateChangedCb(OnCallStateChanged);
-			_messageReceived = new LinphoneDelegates.LinphoneCoreCbsMessageReceivedCb(OnMessageReceived);
+			_registrationStateChanged = new LinphoneDelegates.LinphoneCoreRegistrationStateChanged(OnRegistrationChanged);
+			_callStateChanged = new LinphoneDelegates.LinphoneCoreCallStateChanged(OnCallStateChanged);
+			_messageReceived = new LinphoneDelegates.LinphoneCoreCbsMessageReceived(OnMessageReceived);
 
 			VTable = CreateDefaultLinphoneCoreVTable();
 			VTablePtr = VTable.ToIntPtr();
 
-#warning Deprecated Now, use factory methods
-			LinphoneCore = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
-			//LinphoneCore = CoreModule.linphone_factory_create_core();
+			LinphoneCore = CreateLinphoneCore();
 
-			_coreLoop = new Thread(LinphoneMainLoop);
-			_coreLoop.IsBackground = false;
+			_coreLoop = new Thread(LinphoneMainLoop)
+			{
+				IsBackground = false
+			};
 			_coreLoop.Start();
 
 			TransportConfig = CreateTransportConfig();
@@ -157,14 +130,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
 			GenericModules.linphone_core_set_user_agent(LinphoneCore, connectionParams.Agent, connectionParams.Version);
 
-			if (string.IsNullOrEmpty(connectionParams.AccountAlias))
-			{
-				Identity = $"sip:{connectionParams.Username}@{connectionParams.Host}";
-			}
-			else
-			{
-				Identity = $"\"{connectionParams.AccountAlias}\" sip:{connectionParams.Username}@{connectionParams.Host}";
-			}
+			Identity = string.IsNullOrEmpty(connectionParams.AccountAlias)
+				? $"sip:{connectionParams.Username}@{connectionParams.Host}"
+				: $"\"{connectionParams.AccountAlias}\" sip:{connectionParams.Username}@{connectionParams.Host}";
 
 			ServerHost = $"sip:{connectionParams.Host}:{connectionParams.Port}";
 
@@ -176,6 +144,33 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			ProxyCfg = CreateProxyCfg();
 
 			CallParamsBuilder = new CallParamsBuilder(LinphoneCore);
+		}
+
+		/// <summary>
+		/// Creates a new LinphonCore instance
+		/// </summary>
+		/// <returns></returns>
+		private IntPtr CreateLinphoneCore()
+		{
+			var result = IntPtr.Zero;
+
+			// Deprecated Now, use factory methods
+			//result = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
+
+			try
+			{
+				IntPtr factory = CoreModule.linphone_factory_get();
+				IntPtr cbs = CoreModule.linphone_factory_create_core_cbs(factory);
+
+				result = CoreModule.linphone_factory_create_core(factory, cbs);
+			}
+			catch (Exception)
+			{
+				// Deprecated Now, use factory methods
+				result = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
+			}
+
+			return result;
 		}
 
 		public void DestroyPhone()
@@ -223,12 +218,8 @@ namespace lindotnet.Classes.Wrapper.Implementation
 				}
 
 				IntPtr call = CallModule.linphone_core_invite_with_params(LinphoneCore, uri, callParams);
-
 				if (call.IsZero())
 				{
-#if (DEBUG)
-					ErrorEvent?.Invoke(null, "Can't call!");
-#endif
 					return;
 				}
 
@@ -355,7 +346,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			}
 		}
 
-		public void OnMessageReceived(IntPtr lc, IntPtr room, IntPtr message)
+		public void OnMessageReceived(IntPtr core, IntPtr room, IntPtr message)
 		{
 			var peer_address = ChatModule.linphone_chat_room_get_peer_address(room);
 			if (peer_address.IsNonZero())
@@ -363,19 +354,18 @@ namespace lindotnet.Classes.Wrapper.Implementation
 				var addressStringPtr = CallModule.linphone_address_as_string(peer_address);
 				var chatMessagePtr = ChatModule.linphone_chat_message_get_text(message);
 
-				string addressString, chatMessage;
-				if (MarshalingExtensions.TryConvertString(addressStringPtr, out addressString) && MarshalingExtensions.TryConvertString(chatMessagePtr, out chatMessage))
+				if (MarshalingExtensions.TryConvertString(addressStringPtr, out string addressString) && MarshalingExtensions.TryConvertString(chatMessagePtr, out string chatMessage))
 				{
 					MessageReceivedEvent?.Invoke(addressString, chatMessage);
 				}
 			}
 		}
 
-		public void OnRegistrationChanged(IntPtr lc, IntPtr cfg, LinphoneRegistrationState cstate, string message)
+		public void OnRegistrationChanged(IntPtr core, IntPtr cfg, LinphoneRegistrationState state, string message)
 		{
 			if (LinphoneCore.IsNonZero())
 			{
-				RegistrationStateChangedEvent?.Invoke(cstate);
+				RegistrationStateChangedEvent?.Invoke(state, message);
 			}
 		}
 

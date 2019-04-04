@@ -12,12 +12,12 @@
 
 		public string Server { get; private set; }
 
-		public NatPolicy(bool use_stun, bool use_turn, bool use_ice, bool use_upnp, string server)
+		public NatPolicy(bool useStun, bool useTurn, bool useIce, bool useUpnp, string server)
 		{
-			UseSTUN = use_stun;
-			UseTURN = use_turn;
-			UseICE = use_ice;
-			UseUPNP = use_upnp;
+			UseSTUN = useStun;
+			UseTURN = useTurn;
+			UseICE = useIce;
+			UseUPNP = useUpnp;
 			Server = server;
 		}
 

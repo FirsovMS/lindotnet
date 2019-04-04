@@ -6,7 +6,7 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 	/// <summary>
 	/// http://www.linphone.org/docs/liblinphone/group__chatroom.html
 	/// </summary>
-	internal static class ChatModule
+	internal class ChatModule
 	{
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern IntPtr linphone_core_get_chat_room_from_uri(IntPtr lc, string to);

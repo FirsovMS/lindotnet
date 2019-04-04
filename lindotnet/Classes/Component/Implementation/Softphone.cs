@@ -68,7 +68,7 @@ namespace lindotnet.Classes.Component.Implementation
 		/// </summary>
 		/// <param name="call"></param>
 		/// <param name="error"></param>
-		public delegate void OnError(Call call, Error error);
+		public delegate void OnError(Call call, Error error, string message);
 
 		/// <summary>
 		/// Call Holded
@@ -236,7 +236,8 @@ namespace lindotnet.Classes.Component.Implementation
 					break;
 				case CallState.Error:
 					LineState = LineState.Free;
-					ErrorEvent?.Invoke(null, Error.CallError);
+					var message = call.ToString();
+					ErrorEvent?.Invoke(null, Error.CallError, message);
 					break;
 				case CallState.Loading:
 					LineState = LineState.Busy;
@@ -253,7 +254,7 @@ namespace lindotnet.Classes.Component.Implementation
 			}
 		}
 
-		private void LinphoneWrapper_RegistrationStateChangedEvent(LinphoneRegistrationState state)
+		private void LinphoneWrapper_RegistrationStateChangedEvent(LinphoneRegistrationState state, string message = null)
 		{
 			switch (state)
 			{
@@ -273,8 +274,8 @@ namespace lindotnet.Classes.Component.Implementation
 
 				case LinphoneRegistrationState.LinphoneRegistrationFailed:
 					LinphoneWrapper.DestroyPhone();
-					ErrorEvent?.Invoke(null, Error.RegisterFailed);
-					break;
+					ErrorEvent?.Invoke(null, Error.RegisterFailed, message);
+					throw new LinphoneException($"Error received: {message}");
 
 				case LinphoneRegistrationState.LinphoneRegistrationNone:
 				default:

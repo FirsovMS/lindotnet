@@ -11,5 +11,10 @@
 		public string From { get; internal set; } = string.Empty;
 
 		public string RecordFile { get; internal set; } = string.Empty;
+
+		public override string ToString()
+		{
+			return $"From: {From}; To: {To}; Type: {Type}; State: {State}; RecordFile: {RecordFile};";
+		}
 	}
 }

@@ -74,6 +74,7 @@
     <Compile Include="Classes\Wrapper\Implementation\LinphoneWrapper.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Loader\LoadWindowsDlls.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Loader\Structs.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\ModuleContainer.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Modules\CallModule.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Modules\ChatModule.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Modules\CoreModule.cs" />

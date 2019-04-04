@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace lindotnet.Classes.Wrapper.Implementation.Modules
 {
-	internal static class GenericModules
+	internal class GenericModules
 	{
 		/// <summary>
 		/// http://www.linphone.org/docs/liblinphone/group__linphone__address.html

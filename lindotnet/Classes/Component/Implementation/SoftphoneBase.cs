@@ -14,7 +14,7 @@ namespace lindotnet.Classes.Component.Implementation
 
 		public bool HasErrors { get => errors.Any(); }
 
-		public ConnectState ConnectionState { get; set; }
+		public ConnectState ConnectionState { get; protected set; }
 
 		public LineState LineState { get; set; }
 
@@ -38,12 +38,12 @@ namespace lindotnet.Classes.Component.Implementation
 
 		#region Interface Implementation
 
-		public void Connect()
+		public virtual void Connect()
 		{
 			Connect(NatPolicy.GetDefaultNatPolicy());
 		}
 
-		public void Connect(NatPolicy natPolicy)
+		public virtual void Connect(NatPolicy natPolicy)
 		{
 			if (ConnectionState == ConnectState.Disconnected)
 			{
@@ -54,7 +54,7 @@ namespace lindotnet.Classes.Component.Implementation
 			}
 		}
 
-		public void Disconnect()
+		public virtual void Disconnect()
 		{
 			if (ConnectionState == ConnectState.Connected)
 			{

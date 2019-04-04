@@ -9,30 +9,30 @@ namespace lindotnet.Classes.Wrapper.Implementation.Loader
 	/// </summary>
 	internal static class DllLoader
 	{
-		public static IntPtr DoLoadLibrary(string fileName)
+		public static IntPtr LoadLibrary(string path)
 		{
-			return LoadWindowsDlls.LoadLibrary(fileName);
+			return LoadWindowsDlls.LoadLibrary(path);
 		}
 
-		public static void DoFreeLibrary(IntPtr handle)
+		public static void FreeLibrary(IntPtr libraryName)
 		{
-			LoadWindowsDlls.FreeLibrary(handle);
+			LoadWindowsDlls.FreeLibrary(libraryName);
 		}
 
-		public static IntPtr DoGetProcAddress(IntPtr dllHandle, string name)
+		public static IntPtr ProcedureCall(IntPtr handleDLL, string name)
 		{
-			return LoadWindowsDlls.GetProcAddress(dllHandle, name);
+			return LoadWindowsDlls.GetProcAddress(handleDLL, name);
 		}
 
-		public static string ProcessVAlist(string format, IntPtr args)
+		public static string ProcessCharArrays(string format, IntPtr args)
 		{
 			return ProcessVAListOnWindows(format, args);
 		}
 
 		private static string ProcessVAListOnWindows(string format, IntPtr args)
 		{
-			int byteLength = LoadWindowsDlls.vscprintf(format, args) + 1;
-			IntPtr buffer = Marshal.AllocHGlobal(byteLength);
+			var byteLength = LoadWindowsDlls.vscprintf(format, args) + 1;
+			var buffer = Marshal.AllocHGlobal(byteLength);
 
 			LoadWindowsDlls.vsprintf(buffer, format, args);
 			return Marshal.PtrToStringAnsi(buffer);

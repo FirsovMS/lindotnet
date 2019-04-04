@@ -11,39 +11,34 @@ namespace TestProject
 	{
 		private static readonly TimeSpan ConnectionDelay = TimeSpan.FromSeconds(2);
 		private static readonly string ExampleURI = "100";
+		private Softphone _softphoneInstance;
 
-		[TestMethod]
-		public void TestSofpthoneSendMessage()
+		[ClassInitialize]
+		private void BeforeTestsStart()
 		{
-			Softphone softphoneInstance = null;
-			string mock = "MockMockMock 012456789";
-			try
-			{
-				var testAccount = new Account(
+			var testAccount = new Account(
 					login: "test",
 					password: "testpass",
 					host: "192.168.156.2",
 					accountName: "TestUser");
 
-				softphoneInstance = new Softphone(testAccount);
+			_softphoneInstance = new Softphone(testAccount);
 
-				softphoneInstance.Connect();
+			_softphoneInstance.Connect();
 
-				Task.Delay(ConnectionDelay).Wait();
+			Task.Delay(ConnectionDelay).Wait();
+		}
 
-				if(softphoneInstance.ConnectionState == ConnectState.Connected)
-				{
-					softphoneInstance.SendMessage(ExampleURI, mock);
-				}
-				else
-				{
-					throw new LinphoneException("Phone not connected!");
-				}
-			}
-			finally
-			{
-				softphoneInstance.Disconnect();
-			}			
+		[TestMethod]
+		public void TestSofpthoneSendMessage()
+		{
+			_softphoneInstance.SendMessage(ExampleURI, "SMOCKING MOCK!");
+		}
+
+		[ClassCleanup]
+		private void AfterTests()
+		{
+			_softphoneInstance?.Disconnect();
 		}
 	}
 }

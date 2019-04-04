@@ -2,8 +2,11 @@
 
 namespace lindotnet.Classes.Component.Interfaces
 {
-	internal interface ISoftphoneBase
+	public interface ISoftphoneBase
 	{
+		/// <summary>
+		/// Try Connect to SIP Server
+		/// </summary>
 		void Connect();
 
 		void Connect(NatPolicy natPolicy);

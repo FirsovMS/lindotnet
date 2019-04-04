@@ -5,7 +5,7 @@ namespace lindotnet.Classes
 {
 	internal static class Constants
 	{
-		public static readonly Version ClientVersion = new Version("1.0.1a");
+		public static readonly Version ClientVersion = new Version(1, 0, 2);
 
 		public static readonly string DefaultUserAgent = "liblinphone";
 

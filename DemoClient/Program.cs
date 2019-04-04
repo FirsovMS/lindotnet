@@ -8,9 +8,9 @@ namespace DemoClient
 {
 	class Program
 	{
-		private static string EXIT_SYMBOL = "q";
+		private static readonly string EXIT_SYMBOL = "q";
 
-		private static IEnumerable<string> help = new List<string>()
+		private static readonly IEnumerable<string> help = new List<string>()
 		{
 			"press 'q' to exit",
 		};

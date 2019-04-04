@@ -13,127 +13,65 @@ namespace TestProject
 	public class TestSoftphoneMediaController
 	{
 		private static readonly TimeSpan ConnectionDelay = TimeSpan.FromSeconds(2);
+		private static Softphone _softphoneInstance;
+
+		[ClassInitialize]
+		private void BeforeTestsStart()
+		{
+			var testAccount = new Account(
+					login: "test",
+					password: "testpass",
+					host: "officesip.local",
+					accountName: "TestUser");
+
+			_softphoneInstance = new Softphone(testAccount);
+
+			_softphoneInstance.Connect();
+
+			Task.Delay(ConnectionDelay).Wait();
+		}
 
 		[TestMethod]
 		public void TestCheckSoundDevicesAvability()
 		{
-			Softphone softphoneInstance = null;
-			IEnumerable<Device> soundDevs = null;
-			try
-			{
-				var testAccount = new Account(
-					login: "test",
-					password: "testpass",
-					host: "192.168.156.2",
-					accountName: "TestUser");
+			var soundDevs = _softphoneInstance.MediaController.GetSoundDevices();
 
-				softphoneInstance = new Softphone(testAccount);
-
-				softphoneInstance.Connect();
-				Task.Delay(ConnectionDelay).Wait();
-
-				soundDevs = softphoneInstance.MediaController.GetSoundDevices();
-			}
-			finally
-			{
-				softphoneInstance.Disconnect();
-			}
 			Assert.IsTrue(soundDevs.Any());
 		}
 
 		[TestMethod]
 		public void TestCheckVideoCaptureDevicesAvability()
 		{
-			Softphone softphoneInstance = null;
-			IEnumerable<Device> videoDevs = null;
-			try
-			{
-				var testAccount = new Account(
-					login: "test",
-					password: "testpass",
-					host: "192.168.156.2",
-					accountName: "TestUser");
+			var videoDevs = _softphoneInstance.MediaController.GetVideoCaptureDevices();
 
-				softphoneInstance = new Softphone(testAccount);
-
-				softphoneInstance.Connect();
-				Task.Delay(ConnectionDelay).Wait();
-
-				videoDevs = softphoneInstance.MediaController.GetVideoCaptureDevices();
-			}
-			finally
-			{
-				softphoneInstance.Disconnect();
-			}
 			Assert.IsTrue(videoDevs.Any());
 		}
 
 		[TestMethod]
 		public void TestSetVideoCaptureDevice()
 		{
-			Softphone softphoneInstance = null;
-			IEnumerable<Device> videoDevs = null;
-			Device mock = null;
-			try
-			{
-				var testAccount = new Account(
-					login: "test",
-					password: "testpass",
-					host: "192.168.156.2",
-					accountName: "TestUser");
+			var videoDevs = _softphoneInstance.MediaController.GetVideoCaptureDevices();
+			var mock = videoDevs.FirstOrDefault();
 
-				softphoneInstance = new Softphone(testAccount);
+			_softphoneInstance.MediaController.VideoCaptureDevice = mock;
 
-				softphoneInstance.Connect();
-				Task.Delay(ConnectionDelay).Wait();
-
-				videoDevs = softphoneInstance.MediaController.GetVideoCaptureDevices();
-
-				if (videoDevs.Any())
-				{
-					mock = videoDevs.FirstOrDefault();
-					softphoneInstance.MediaController.VideoCaptureDevice = mock;
-				}
-			}
-			finally
-			{
-				softphoneInstance.Disconnect();
-			}
-			Assert.AreSame(mock, softphoneInstance.MediaController.VideoCaptureDevice);
+			Assert.AreSame(mock, _softphoneInstance.MediaController.VideoCaptureDevice);
 		}
 
 		[TestMethod]
 		public void TestSetAudioCaptureDevice()
 		{
-			Softphone softphoneInstance = null;
-			IEnumerable<Device> audioDevs = null;
-			Device mock = null;
-			try
-			{
-				var testAccount = new Account(
-					login: "test",
-					password: "testpass",
-					host: "192.168.156.2",
-					accountName: "TestUser");
+			var audioDevs = _softphoneInstance.MediaController.GetSoundDevices();
+			var mock = audioDevs.FirstOrDefault(dev => dev.Type == DeviceType.SoundCapture);
 
-				softphoneInstance = new Softphone(testAccount);
+			_softphoneInstance.MediaController.AudioCaptureDevice = mock;
+			Assert.AreSame(mock, _softphoneInstance.MediaController.AudioCaptureDevice);
+		}
 
-				softphoneInstance.Connect();
-				Task.Delay(ConnectionDelay).Wait();
-
-				audioDevs = softphoneInstance.MediaController.GetSoundDevices();
-
-				if (audioDevs.Any())
-				{
-					mock = audioDevs.FirstOrDefault(dev => dev.Type == DeviceType.SoundCapture);
-					softphoneInstance.MediaController.AudioCaptureDevice = mock;
-				}
-			}
-			finally
-			{
-				softphoneInstance.Disconnect();
-			}
-			Assert.AreSame(mock, softphoneInstance.MediaController.AudioCaptureDevice);
+		[ClassCleanup]
+		private void AfterTests()
+		{
+			_softphoneInstance?.Disconnect();
 		}
 	}
 }

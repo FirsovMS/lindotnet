@@ -6,7 +6,7 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 	/// <summary>
 	/// http://www.linphone.org/docs/liblinphone/group__network__parameters.html
 	/// </summary>
-	internal static class NetworkModule
+	internal class NetworkModule
 	{
 		[DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
 		public static extern int linphone_core_set_sip_transports(IntPtr lc, IntPtr tr_config);

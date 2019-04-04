@@ -7,7 +7,7 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
 	/// <summary>
 	/// http://www.linphone.org/docs/liblinphone/group__media__parameters.html
 	/// </summary>
-	internal static class MediaModule
+	internal class MediaModule
 	{
 		/// <summary>
 		/// Sets a wav file to be played when putting somebody on hold, or when files are used instead of soundcards 

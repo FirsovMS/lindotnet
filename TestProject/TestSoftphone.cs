@@ -1,8 +1,7 @@
-﻿using lindotnet.Classes.Component.Implementation;
+﻿using lindotnet.Classes;
+using lindotnet.Classes.Component.Implementation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace TestProject
@@ -11,138 +10,58 @@ namespace TestProject
 	public class TestSoftphone
 	{
 		private static readonly string workingDir = Environment.CurrentDirectory + @"\records";
-		private static readonly TimeSpan ConnectionDelay = TimeSpan.FromSeconds(2);
-		private static readonly TimeSpan CallTime = TimeSpan.FromSeconds(5);
-		private static readonly string ExampleURI = "100";
+		private static readonly string ExampleURI = "test2";
+		private Softphone _softphoneInstance;
 
-		[TestMethod]
-		public void CreateSoftphoneInstance()
+		[TestInitialize]
+		public void BeforeTestInitialize()
 		{
 			// using office sip for testing
 			var testAccount = new Account(
 				login: "test",
 				password: "testpass",
-				host: "192.168.156.2",
+				host: "officesip.local",
 				accountName: "TestUser");
 
-			var softphoneInstance = new Softphone(testAccount);
+			_softphoneInstance = new Softphone(testAccount);
+		}
 
-			Assert.IsNotNull(softphoneInstance);
+		[TestMethod]
+		public void CreateSoftphoneInstance()
+		{
+			Assert.IsNotNull(_softphoneInstance);
 		}
 
 		[TestMethod]
 		public void TestSoftphoneServerConnection()
 		{
-			Softphone softphoneInstance = null;
-			try
-			{
-				// using office sip for testing
-				var testAccount = new Account(
-					login: "test",
-					password: "testpass",
-					host: "192.168.156.2",
-					accountName: "TestUser");
+			_softphoneInstance.Connect();
 
-				softphoneInstance = new Softphone(testAccount);
-
-				softphoneInstance.Connect();
-
-				Task.Delay(ConnectionDelay).Wait();
-
-				Assert.AreEqual(lindotnet.Classes.ConnectState.Connected, softphoneInstance.ConnectionState);
-			}
-			finally
-			{
-				softphoneInstance.Disconnect();
-			}
+			Assert.IsTrue(_softphoneInstance.ConnectionState == ConnectState.Connected);
 		}
-
-		//[TestMethod]
-		//public void TestCallAndRecordToAnotherSoftphone()
-		//{
-		//	Softphone softphoneInstance = null;
-		//	bool isCallEnded = false;
-		//	try
-		//	{
-		//		if (!Directory.Exists(workingDir))
-		//		{
-		//			Directory.CreateDirectory(workingDir);
-		//		}
-		//		string outFile = workingDir + @"\mock_record.wav";
-
-		//		// using office sip for testing
-		//		var testAccount = new Account(
-		//			login: "test",
-		//			password: "testpass",
-		//			host: "192.168.156.2",
-		//			accountName: "TestUser");
-
-		//		Call currentCall = null;
-		//		softphoneInstance = new Softphone(testAccount);
-
-		//		softphoneInstance.CallActiveEvent += (call) =>
-		//		{
-		//			currentCall = call;
-		//		};
-
-		//		softphoneInstance.CallCompletedEvent += (call) =>
-		//		{
-		//			isCallEnded = true;
-		//		};
-
-		//		softphoneInstance.Connect();
-
-		//		Task.Delay(ConnectionDelay).Wait();
-
-		//		softphoneInstance.MakeCallAndRecord(ExampleURI, outFile, recordStartInstantly: true);
-
-		//		Assert.AreEqual(lindotnet.Classes.LineState.Busy, softphoneInstance.LineState);
-		//	}
-		//	finally
-		//	{
-		//		while (!isCallEnded)
-		//		{
-		//			Thread.Sleep(100);
-		//		}
-		//		softphoneInstance.Disconnect();
-		//	}
-		//}
 
 		[TestMethod]
 		public void TestCallToAnotherSoftphone()
 		{
-			Softphone softphoneInstance = null;
-			Call currentCall = null;
-			try
+			_softphoneInstance.CallActiveEvent += (call) =>
 			{
-				// using office sip for testing
-				var testAccount = new Account(
-					login: "test",
-					password: "testpass",
-					host: "192.168.156.2",
-					accountName: "TestUser");
-				
-				softphoneInstance = new Softphone(testAccount);
+				_softphoneInstance.TerminateCall(call);
+				Assert.IsNotNull(call);
+			};
 
-				softphoneInstance.CallActiveEvent += (call) =>
-				{
-					Task.Delay(ConnectionDelay).Wait();
-					softphoneInstance.TerminateCall(call);
-					Assert.IsNotNull(call);					
-				};
-
-				softphoneInstance.Connect();
-
-				Task.Delay(ConnectionDelay).Wait();
-
-				softphoneInstance.MakeCall(ExampleURI);
-
-				Task.Delay(CallTime).Wait();
-			}
-			finally
+			_softphoneInstance.PhoneConnectedEvent += () =>
 			{
-				softphoneInstance.Disconnect();
-			}
+				_softphoneInstance.MakeCall(ExampleURI);
+			};
+
+			_softphoneInstance.Connect();
+		}
+
+		[TestCleanup]
+		public void AfterTestComplete()
+		{
+			_softphoneInstance?.Disconnect();
+			_softphoneInstance = null;
 		}
 	}
 }
