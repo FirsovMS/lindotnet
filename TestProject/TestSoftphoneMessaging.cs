@@ -16,11 +16,7 @@ namespace TestProject
 		[ClassInitialize]
 		private void BeforeTestsStart()
 		{
-			var testAccount = new Account(
-					login: "test",
-					password: "testpass",
-					host: "192.168.156.2",
-					accountName: "TestUser");
+			var testAccount = new Account("test", "test", "local.dev", "localhost", accountName: "test");
 
 			_softphoneInstance = new Softphone(testAccount);
 

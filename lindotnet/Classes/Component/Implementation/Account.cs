@@ -4,19 +4,27 @@
 	{
 		#region Props
 
-		public string Username { get; set; }
+		public string Username { get; }
 
-		public string AccountName { get; set; }
+		public string AccountName { get; }
 
-		public string Password { get; set; }
+		public string Password { get; }
 
-		public string Host { get; set; }
+		public string Server { get; }
 
-		public int Port { get; set; }
+		public int Port { get; }
+
+		public string ProxyHost { get; }
 
 		public int Id { get; set; }
 
-		public string Identiny => $"sip:{Username}@{Host}";
+		public string Identiny
+		{
+			get
+			{
+				return $"sip:{Username}@{Server}";
+			}
+		}
 
 		#endregion
 
@@ -25,16 +33,18 @@
 		/// </summary>
 		/// <param name="login"></param>
 		/// <param name="password"></param>
-		/// <param name="host"></param>
+		/// <param name="server"></param>
+		/// <param name="proxyHost"></param>
 		/// <param name="port"></param>
 		/// <param name="accountName"></param>
-		public Account(string login, string password, string host, int port = 5060, string accountName = "")
+		public Account(string login, string password, string server, string proxyHost = null, int port = 5060, string accountName = null)
 		{
 			Username = login;
 			AccountName = accountName;
 			Password = password;
-			Host = host;
+			Server = server;
 			Port = port;
+			ProxyHost = proxyHost;
 		}
 	}
 }

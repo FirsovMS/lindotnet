@@ -49,7 +49,7 @@ namespace lindotnet.Classes.Component.Implementation
 			{
 				ConnectionState = ConnectState.Progress;
 
-				var connParams = CreateConnectionParams(Account, natPolicy);
+				var connParams = CreateConnectionParams(natPolicy);
 				LinphoneWrapper.CreatePhone(connParams);
 			}
 		}
@@ -64,14 +64,15 @@ namespace lindotnet.Classes.Component.Implementation
 
 		#endregion
 
-		private LinphoneConnectionParams CreateConnectionParams(Account account, NatPolicy natPolicy)
+		private LinphoneConnectionParams CreateConnectionParams(NatPolicy natPolicy)
 		{
 			return new LinphoneConnectionParams()
 			{
 				Username = Account.Username,
 				Password = Account.Password,
 				AccountAlias = Account.AccountName,
-				Host = Account.Host,
+				Server = Account.Server,
+				ProxyHost = Account.ProxyHost,
 				Port = Account.Port,
 				Agent = UserAgent,
 				Version = Version.ToString(),

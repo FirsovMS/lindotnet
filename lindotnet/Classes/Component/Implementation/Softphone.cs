@@ -275,7 +275,8 @@ namespace lindotnet.Classes.Component.Implementation
 				case LinphoneRegistrationState.LinphoneRegistrationFailed:
 					LinphoneWrapper.DestroyPhone();
 					ErrorEvent?.Invoke(null, Error.RegisterFailed, message);
-					throw new LinphoneException($"Error received: {message}");
+					//throw new LinphoneException($"Error received: {message}");
+					break;
 
 				case LinphoneRegistrationState.LinphoneRegistrationNone:
 				default:

@@ -10,18 +10,13 @@ namespace TestProject
 	public class TestSoftphone
 	{
 		private static readonly string workingDir = Environment.CurrentDirectory + @"\records";
-		private static readonly string ExampleURI = "test2";
+		private static readonly string test2 = "test2";
 		private Softphone _softphoneInstance;
 
 		[TestInitialize]
 		public void BeforeTestInitialize()
 		{
-			// using office sip for testing
-			var testAccount = new Account(
-				login: "test",
-				password: "testpass",
-				host: "officesip.local",
-				accountName: "TestUser");
+			var testAccount = new Account("test", "test", "local.dev", "localhost", accountName: "test");
 
 			_softphoneInstance = new Softphone(testAccount);
 		}
@@ -51,7 +46,7 @@ namespace TestProject
 
 			_softphoneInstance.PhoneConnectedEvent += () =>
 			{
-				_softphoneInstance.MakeCall(ExampleURI);
+				_softphoneInstance.MakeCall(test2);
 			};
 
 			_softphoneInstance.Connect();

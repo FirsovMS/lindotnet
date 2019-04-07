@@ -36,7 +36,6 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			get { return accountAlias; }
 			set
 			{
-				CheckError(value, "AccountAlias");
 				accountAlias = value;
 			}
 		}
@@ -51,7 +50,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			}
 		}
 
-		public string Host
+		public string Server
 		{
 			get { return server; }
 			set
@@ -102,6 +101,8 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			get { return natPolicy; }
 			set { natPolicy = value ?? NatPolicy.GetDefaultNatPolicy(); }
 		}
+
+		public string ProxyHost { get; internal set; }
 
 		private static void CheckError(string fieldValue, string propName)
 		{

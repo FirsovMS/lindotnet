@@ -131,10 +131,12 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			GenericModules.linphone_core_set_user_agent(LinphoneCore, connectionParams.Agent, connectionParams.Version);
 
 			Identity = string.IsNullOrEmpty(connectionParams.AccountAlias)
-				? $"sip:{connectionParams.Username}@{connectionParams.Host}"
-				: $"\"{connectionParams.AccountAlias}\" sip:{connectionParams.Username}@{connectionParams.Host}";
+				? $"sip:{connectionParams.Username}@{connectionParams.Server}"
+				: $"\"{connectionParams.AccountAlias}\" sip:{connectionParams.Username}@{connectionParams.Server}";
 
-			ServerHost = $"sip:{connectionParams.Host}:{connectionParams.Port}";
+			ServerHost = string.IsNullOrWhiteSpace(connectionParams.ProxyHost)
+				? $"sip:{connectionParams.Server}:{connectionParams.Port}"
+				: $"sip:{connectionParams.ProxyHost}:{connectionParams.Port}";
 
 			AuthInfo = GenericModules.linphone_auth_info_new(connectionParams.Username, null, connectionParams.Password, null, null, null);
 			GenericModules.linphone_core_add_auth_info(LinphoneCore, AuthInfo);
@@ -157,18 +159,11 @@ namespace lindotnet.Classes.Wrapper.Implementation
 			// Deprecated Now, use factory methods
 			//result = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
 
-			try
-			{
-				IntPtr factory = CoreModule.linphone_factory_get();
-				IntPtr cbs = CoreModule.linphone_factory_create_core_cbs(factory);
-
-				result = CoreModule.linphone_factory_create_core(factory, cbs);
-			}
-			catch (Exception)
-			{
-				// Deprecated Now, use factory methods
-				result = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
-			}
+			// Factory methods now not implemented, some issues 
+			// in subscription on changing state
+			//IntPtr factory = CoreModule.linphone_factory_get();
+			//IntPtr cbs = CoreModule.linphone_factory_create_core_cbs(factory);
+			//result = CoreModule.linphone_factory_create_core(factory, cbs);
 
 			return result;
 		}
