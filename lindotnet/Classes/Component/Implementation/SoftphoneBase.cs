@@ -3,76 +3,76 @@ using lindotnet.Classes.Wrapper.Implementation;
 
 namespace lindotnet.Classes.Component.Implementation
 {
-	public abstract class SoftphoneBase : ISoftphoneBase
-	{
-		#region Props
+    public abstract class SoftphoneBase : ISoftphoneBase
+    {
+        #region Props
 
-		public ConnectState ConnectState { get; set; }
+        public ConnectState ConnectState { get; set; }
 
-		public LineState LineState { get; set; }
+        public LineState LineState { get; set; }
 
-		public Account Account { get; set; }
+        public Account Account { get; set; }
 
-		public string Useragent { get; set; } = Constants.DefaultUserAgent;
+        public string Useragent { get; set; } = Constants.DefaultUserAgent;
 
-		public string Version { get; set; } = Constants.ClientVersion;
+        public string Version { get; set; } = Constants.ClientVersion;
 
-		public LinphoneWrapper LinphoneWrapper { get; private set; }
+        public LinphoneWrapper LinphoneWrapper { get; private set; }
 
-		#endregion
+        #endregion Props
 
-		public SoftphoneBase(Account account)
-		{
-			Account = account ?? throw new LinphoneException("Softphone requires as Account to make calls!");
-			LinphoneWrapper = new LinphoneWrapper();
-		}
+        public SoftphoneBase(Account account)
+        {
+            Account = account ?? throw new LinphoneException("Softphone requires as Account to make calls!");
+            LinphoneWrapper = new LinphoneWrapper();
+        }
 
-		#region Interface Implementation
+        #region Interface Implementation
 
-		public void Connect()
-		{
-			Connect(NatPolicy.GetDefaultNatPolicy());
-		}
+        public void Connect()
+        {
+            Connect(NatPolicy.GetDefaultNatPolicy());
+        }
 
-		public void Connect(NatPolicy natPolicy)
-		{
-			if (ConnectState == ConnectState.Disconnected)
-			{
-				ConnectState = ConnectState.Progress;
+        public void Connect(NatPolicy natPolicy)
+        {
+            if (ConnectState == ConnectState.Disconnected)
+            {
+                ConnectState = ConnectState.Progress;
 
-				var connParams = CreateConnectionParams(Account, natPolicy);
-				LinphoneWrapper.CreatePhone(connParams);
-			}
-		}
+                var connParams = CreateConnectionParams(Account, natPolicy);
+                LinphoneWrapper.CreatePhone(connParams);
+            }
+        }
 
-		public void Disconnect()
-		{
-			if (ConnectState == ConnectState.Connected)
-			{
-				LinphoneWrapper.DestroyPhone();
-			}
-		}
+        public void Disconnect()
+        {
+            if (ConnectState == ConnectState.Connected)
+            {
+                LinphoneWrapper.DestroyPhone();
+            }
+        }
 
-		#endregion
+        #endregion Interface Implementation
 
-		private LinphoneConnectionParams CreateConnectionParams(Account account, NatPolicy natPolicy)
-		{
-			return new LinphoneConnectionParams()
-			{
-				Username = Account.Username,
-				Password = Account.Password,
-				AccountAlias = Account.AccountName,
-				Host = Account.Host,
-				Port = Account.Port,
-				Agent = Useragent,
-				Version = Version,
-				NatPolicy = natPolicy
-			};
-		}
+        private LinphoneConnectionParams CreateConnectionParams(Account account, NatPolicy natPolicy)
+        {
+            return new LinphoneConnectionParams()
+            {
+                Username = Account.Username,
+                Password = Account.Password,
+                AccountAlias = Account.AccountName,
+                Host = Account.Host,
+                Port = Account.Port,
+                Agent = Useragent,
+                Version = Version,
+                NatPolicy = natPolicy
+            };
+        }
 
-		~SoftphoneBase()
-		{
-			Disconnect();
-		}
-	}
+        ~SoftphoneBase()
+        {
+            Disconnect();
+        }
+    }
 }

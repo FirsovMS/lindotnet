@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
-using lindotnet.Classes.Component.Implementation;
+﻿using lindotnet.Classes.Component.Implementation;
+using System.Collections.Generic;
 
 namespace lindotnet.Classes.Component.Interfaces
 {
-	public interface IMedia
-	{
-		bool IsPlaybackDevice(string device);
+    public interface IMedia
+    {
+        bool IsPlaybackDevice(string device);
 
-		bool IsAudioCaptureDevice(string device);
+        bool IsAudioCaptureDevice(string device);
 
-		IEnumerable<Device> GetVideoCaptureDevices();
+        IEnumerable<Device> GetVideoCaptureDevices();
 
-		IEnumerable<Device> GetSoundDevices();
+        IEnumerable<Device> GetSoundDevices();
 
-		bool TrySetPlaybackDevice(string device_id);
+        bool TrySetPlaybackDevice(string device_id);
 
-		void ReloadDevices();
-	}
+        void ReloadDevices();
+    }
 }

@@ -2,12 +2,12 @@
 
 namespace lindotnet.Classes.Component.Interfaces
 {
-	internal interface ISoftphoneBase
-	{
-		void Connect();
+    internal interface ISoftphoneBase
+    {
+        void Connect();
 
-		void Connect(NatPolicy natPolicy);
+        void Connect(NatPolicy natPolicy);
 
-		void Disconnect();
-	}
+        void Disconnect();
+    }
 }
