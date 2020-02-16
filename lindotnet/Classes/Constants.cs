@@ -6,11 +6,7 @@
 
         internal static readonly string DefaultUserAgent = "liblinphone";
 
-#if (WINDOWS)
-		internal const string LIBNAME = "linphone.dll";
-#else
-        internal const string LIBNAME = "liblinphone";
-#endif
+        internal const string LIBNAME = "linphone.dll";
 
         /// <summary>
         /// Disable a sip transport

@@ -6,19 +6,12 @@ namespace lindotnet.Classes.Wrapper.Implementation
     public struct LinphoneConnectionParams
     {
         private string username;
-
         private string accountAlias;
-
         private string password;
-
         private string server;
-
         private int port;
-
         private string agent;
-
         private string version;
-
         private NatPolicy natPolicy;
 
         public string Username

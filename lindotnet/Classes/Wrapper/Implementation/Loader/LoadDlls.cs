@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace lindotnet.Classes.Wrapper.Implementation.Loader
 {
-    internal static class LoadWindowsDlls
+    internal static class LoadDlls
     {
         [DllImport("kernel32.dll")]
         public static extern IntPtr LoadLibrary(string fileName);

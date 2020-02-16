@@ -14,8 +14,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
             {
                 if (linphoneCallPtr == null || linphoneCallPtr.IsZero())
                 {
-                    throw new ArgumentNullException("LinphoneCallPtr can't be null or zero pattern!");
+                    throw new ArgumentNullException("LinphoneCallPtr can't be null or has zero pattern!");
                 }
+
                 return linphoneCallPtr;
             }
             set

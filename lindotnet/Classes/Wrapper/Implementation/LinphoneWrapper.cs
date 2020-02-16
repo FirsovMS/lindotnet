@@ -1,13 +1,12 @@
 ﻿using lindotnet.Classes.Component.Implementation;
 using lindotnet.Classes.Helpers;
+using lindotnet.Classes.Wrapper.Implementation.LinphoneDTO;
 using lindotnet.Classes.Wrapper.Implementation.Loader;
 using lindotnet.Classes.Wrapper.Implementation.Modules;
 using lindotnet.Classes.Wrapper.Interfaces;
-using LoggingAPI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -50,9 +49,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
         public string ServerHost { get; private set; }
 
-        public LinphoneStructs.LinphoneCoreVTable VTable { get; private set; }
+        public LinphoneCoreVTable VTable { get; private set; }
 
-        public LinphoneStructs.LCSipTransports TransportConfig { get; private set; }
+        public LCSipTransports TransportConfig { get; private set; }
 
         public ConcurrentDictionary<IntPtr, LinphoneCall> Calls { get; private set; }
 
@@ -86,13 +85,22 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
         #endregion Delegates
 
-        static LinphoneWrapper()
+        public LinphoneWrapper()
         {
-            IntPtr dllPtr = DllLoader.LoadLibrary(Constants.LIBNAME);
+            LoadLibraries();
+
+            Calls = new ConcurrentDictionary<IntPtr, LinphoneCall>();
+
+            CoreModule.linphone_core_set_log_level(OrtpLogLevel.END);
+        }
+
+        private void LoadLibraries()
+        {
+            var dllPtr = DllLoader.LoadLibrary(Constants.LIBNAME);
 
             var modules = new List<Type>()
             {
-                typeof (CoreModule),
+                typeof(CoreModule),
                 typeof(GenericModules),
                 typeof(ProxieModule),
                 typeof(NetworkModule),
@@ -106,25 +114,18 @@ namespace lindotnet.Classes.Wrapper.Implementation
             DllLoader.FreeLibrary(dllPtr);
         }
 
-        private static void LoadModules(IntPtr dllPtr, List<Type> modules)
+        private void LoadModules(IntPtr dllPtr, List<Type> modules)
         {
             foreach (var module in modules)
             {
-                foreach (MethodInfo info in module.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                foreach (var info in module.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 {
                     if (DllLoader.GetProcAddress(dllPtr, info.Name).IsZero())
                     {
-                        throw new Exception($"Error on dll importing: {info.Module.Name}, method {info.Name} is not found.");
+                        throw new Exception($"Error on dll importing: {info.Module.Name} , method {info.Name} is not found.");
                     }
                 }
             }
-        }
-
-        public LinphoneWrapper()
-        {
-            Calls = new ConcurrentDictionary<IntPtr, LinphoneCall>();
-
-            CoreModule.linphone_core_set_log_level(OrtpLogLevel.END);
         }
 
         #region Interface Imlementation
@@ -140,10 +141,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
             VTable = CreateDefaultLinphoneCoreVTable();
             VTablePtr = VTable.ToIntPtr();
 
-#warning Deprecated Now, use factory methods
             LinphoneCore = CoreModule.linphone_core_new(VTablePtr, null, null, IntPtr.Zero);
 
-            coreLoop = new Thread(LinphoneMainLoop);
+            coreLoop = new Thread(LinphoneMainLoopHandler);
             coreLoop.IsBackground = false;
             coreLoop.Start();
 
@@ -202,11 +202,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
         {
             if (LinphoneCore.IsNonZero())
             {
-                IntPtr callParams = CallParamsBuilder
-                    .BuildAudioParams()
-                    .BuildVideoParams()
-                    .BuildMediaParams()
-                    .Build();
+                var callParams = CreateCallParameters();
 
                 if (!string.IsNullOrWhiteSpace(filename))
                 {
@@ -499,12 +495,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
             if (linphoneCall.IsExist() && LinphoneCore.IsNonZero())
             {
                 CallModule.linphone_call_ref(linphoneCall.LinphoneCallPtr);
-
-                IntPtr callParams = CallParamsBuilder
-                    .BuildAudioParams()
-                    .BuildVideoParams()
-                    .BuildMediaParams()
-                    .Build();
+                IntPtr callParams = CreateCallParameters();
 
                 CallModule.linphone_call_params_set_record_file(callParams, filename);
 
@@ -523,11 +514,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
             {
                 CallModule.linphone_call_ref(linphoneCall.LinphoneCallPtr);
 
-                IntPtr callParams = CallParamsBuilder
-                    .BuildAudioParams()
-                    .BuildVideoParams()
-                    .BuildMediaParams()
-                    .Build();
+                IntPtr callParams = CreateCallParameters();
 
                 CallModule.linphone_core_accept_call_with_params(LinphoneCore, linphoneCall.LinphoneCallPtr, callParams);
             }
@@ -537,9 +524,18 @@ namespace lindotnet.Classes.Wrapper.Implementation
 
         #region Private Methods
 
-        private LinphoneStructs.LinphoneCoreVTable CreateDefaultLinphoneCoreVTable()
+        private IntPtr CreateCallParameters()
         {
-            return new LinphoneStructs.LinphoneCoreVTable()
+            return CallParamsBuilder
+                .BuildAudioParams()
+                .BuildVideoParams()
+                .BuildMediaParams()
+                .Build();
+        }
+
+        private LinphoneCoreVTable CreateDefaultLinphoneCoreVTable()
+        {
+            return new LinphoneCoreVTable()
             {
                 global_state_changed = IntPtr.Zero,
                 registration_state_changed = Marshal.GetFunctionPointerForDelegate(registration_state_changed),
@@ -582,7 +578,7 @@ namespace lindotnet.Classes.Wrapper.Implementation
             };
         }
 
-        private void LinphoneMainLoop()
+        private void LinphoneMainLoopHandler()
         {
             while (IsRunning)
             {
@@ -612,9 +608,9 @@ namespace lindotnet.Classes.Wrapper.Implementation
             RegistrationStateChangedEvent?.Invoke(LinphoneRegistrationState.LinphoneRegistrationCleared);
         }
 
-        private LinphoneStructs.LCSipTransports CreateTransportConfig()
+        private LCSipTransports CreateTransportConfig()
         {
-            return new LinphoneStructs.LCSipTransports()
+            return new LCSipTransports()
             {
                 udp_port = Constants.LC_SIP_TRANSPORT_RANDOM,
                 tcp_port = Constants.LC_SIP_TRANSPORT_RANDOM,

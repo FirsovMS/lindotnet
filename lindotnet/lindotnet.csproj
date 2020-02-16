@@ -64,14 +64,15 @@
     <Compile Include="Classes\Helpers\MarshalingExtensions.cs" />
     <Compile Include="Classes\LinphoneException.cs" />
     <Compile Include="Classes\Wrapper\Implementation\CallParamsBuilder.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneDTO\LCSipTransports.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneDTO\LinphoneCoreVTable.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\LinphoneDTO\LinphoneNatPolicy.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Loader\DllLoader.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneCall.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneConnectionParams.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneDelegates.cs" />
-    <Compile Include="Classes\Wrapper\Implementation\LinphoneStructs.cs" />
     <Compile Include="Classes\Wrapper\Implementation\LinphoneWrapper.cs" />
-    <Compile Include="Classes\Wrapper\Implementation\Loader\LoadLinuxDlls.cs" />
-    <Compile Include="Classes\Wrapper\Implementation\Loader\LoadWindowsDlls.cs" />
+    <Compile Include="Classes\Wrapper\Implementation\Loader\LoadDlls.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Loader\Structs.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Modules\CallModule.cs" />
     <Compile Include="Classes\Wrapper\Implementation\Modules\ChatModule.cs" />
@@ -94,4 +95,8 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>echo "Copy sdk dll's"
+xcopy /y /d "$(SolutionDir)\sdk\*.dll" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

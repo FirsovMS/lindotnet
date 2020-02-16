@@ -51,8 +51,8 @@ namespace lindotnet.Classes.Wrapper.Implementation.Modules
         public static extern IntPtr linphone_address_as_string_uri_only(IntPtr address);
 
 #warning DllNotLoad
-        //[DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-        //public static extern IntPtr linphone_call_get_to_address(IntPtr call);
+        [DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr linphone_call_get_to_address(IntPtr call);
 
         [DllImport(Constants.LIBNAME, CallingConvention = CallingConvention.Cdecl)]
         public static extern int linphone_core_accept_call_with_params(IntPtr lc, IntPtr call, IntPtr callparams);
